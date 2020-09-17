@@ -1,0 +1,11 @@
+{
+    "name": "easy/easy",
+    "type": "library,",
+    "authors": [
+        {
+            "name": "ljk",
+            "email": "303147190@qq.com"
+        }
+    ],
+    "require": {}
+}
