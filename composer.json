@@ -1,6 +1,6 @@
 {
-    "name": "easy/easy",
-    "type": "library,",
+    "name": "easyphp/easyphp",
+    "type": "library",
     "authors": [
         {
             "name": "ljk",
