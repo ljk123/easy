@@ -7,5 +7,12 @@
             "email": "303147190@qq.com"
         }
     ],
-    "require": {}
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "easy\\": "src/easy/",
+            "easy\\traits\\": "src/traits/",
+            "easy\\utils\\": "src/utils/"
+        }
+    }
 }
