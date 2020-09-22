@@ -9,6 +9,11 @@ use easy\app\Container;
 class Config implements Container
 {
     protected $config=[];
+    /**
+     * @var string
+     */
+    protected $path;
+
     private function __clone()
     {
     }

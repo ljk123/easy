@@ -107,7 +107,7 @@ class Mysql
     }
     /**
      * @param string $sql
-     * @return array|bool
+     * @return int|bool
      */
     public function execute(string $sql,array $params=null)
     {

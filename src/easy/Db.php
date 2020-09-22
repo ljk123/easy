@@ -113,17 +113,31 @@ class Db implements Container
 
 
     //提供 query execute 方法
+
+    /**
+     * @param string $sql
+     * @param array|null $params
+     * @return array|bool
+     * @throws Exception
+     */
     public function query(string $sql,array $params=null)
     {
         $link=$this->initConnect(false);
-        if(false===$result=$link->query($sql,$params))
+        if(false===$result=$this->initConnect(false)->query($sql,$params))
         {
             $this->error='sqlerror:'.join(':',$link->error);
             return false;
         }
         return $result;
     }
-    public function execute(string $sq,array $params=nulll){
+
+    /**
+     * @param string $sql
+     * @param array $params
+     * @return bool|int
+     * @throws Exception
+     */
+    public function execute(string $sql,array $params=nulll){
         $link=$this->initConnect(true);
         if(false===$result=$link->execute($sql,$params))
         {
@@ -198,8 +212,9 @@ class Db implements Container
      * 数组只实现=
      * 其他语法写原生语句
      * 多次调用逻辑是and
-     * @param $where
+     * @param $whereItem
      * @return $this
+     * @throws InvalidArgumentException
      */
     public function where($whereItem){
         if(empty($this->options['where']))
@@ -218,10 +233,9 @@ class Db implements Container
                     throw new InvalidArgumentException('alias mast be string or numeric,'.gettype($val).' gieven');
                 }
                 $index=count($this->options['where']['params']);
-                $key_index=str_replace(['.',],'_',$key).'_'.$index;
+                $key_index=str_replace('.','_',$key).'_'.$index;
                 $this->options['where']['string'][]="$key=:$key_index";
                 $this->options['where']['params'][$key_index]=$val;
-                $index++;
             }
         }
         elseif(is_string($whereItem)){
@@ -277,13 +291,13 @@ class Db implements Container
         $options['field']=empty($options['field'])?'*':$options['field'];
 
         //where
+        empty($options['params']) && $options['params']=[];
         if(!empty($options['where']))
         {
-            $options['params']=$options['where']['params'];
+            $options['params']=array_merge($options['params'],$options['where']['params']);
             $options['where']=join(' AND ',$options['where']['string']);
         }
         else{
-            $options['params']=[];
             $options['where']='1';
         }
         //order
@@ -315,13 +329,12 @@ class Db implements Container
      * @param array $options
      * @return string
      */
-    protected function optionSelectSql(array $options){
+    protected function buildSelectSql(array $options){
         $sql="SELECT _FIELD_ FROM _TABLE_ _JOIN_ WHERE _WHERE_ _GROUP_ _HAVING_ _ORDER_ _LIMIT_";
         return str_replace([
                 '_FIELD_',
                 '_TABLE_',
                 '_JOIN_',
-                '_WHERE_',
                 '_WHERE_',
                 '_GROUP_',
                 '_HAVING_',
@@ -333,7 +346,6 @@ class Db implements Container
                 $options['table'],
                 $options['join'],
                 $options['where'],
-                $options['field'],
                 $options['group'],
                 $options['having'],
                 $options['order'],
@@ -351,9 +363,7 @@ class Db implements Container
      */
     public function find(){
         $this->limit(1);
-        $options=$this->parseOptions();
-        $sql=$this->optionSelectSql($options);
-        if(false===$result=$this->query($sql,$options['params']))
+        if(false===$result=$this->select())
         {
             return false;
         }
@@ -361,7 +371,7 @@ class Db implements Container
         {
             return [];
         }
-        return $result[0];
+        return array_shift($result);
     }
 
     /**
@@ -371,7 +381,7 @@ class Db implements Container
     public function select()
     {
         $options=$this->parseOptions();
-        $sql=$this->optionSelectSql($options);
+        $sql=$this->buildSelectSql($options);
         if(false===$result=$this->query($sql,$options['params']))
         {
             return false;
@@ -382,14 +392,160 @@ class Db implements Container
         }
         return $result;
     }
-    public function save()
+    public function value(string $field){
+        $this->field($field . ' easy_value');
+        if(false===$result=$this->find())
+        {
+            return false;
+        }
+        if(empty($result))
+        {
+            return [];
+        }
+        return $result['easy_value'];
+    }
+    public function column(string $field){
+        $this->field($field . ' easy_column');
+        if(false===$result=$this->select())
+        {
+            return false;
+        }
+        if(empty($result))
+        {
+            return [];
+        }
+        return array_column($result,'easy_column');
+    }
+
+    /**
+     * @param array $options
+     * @return string
+     */
+    protected function buildUpdateSql(array $options){
+        $sql="UPDATE _TABLE_ SET _UPDATE_FIELD_ WHERE _WHERE_ _LIMIT_";
+        return str_replace([
+            '_TABLE_',
+            '_UPDATE_FIELD_',
+            '_WHERE_',
+            '_LIMIT_',
+        ],
+            [
+                $options['table'],
+                $options['update_field'],
+                $options['where'],
+                $options['limit'],
+            ],
+            $sql
+        );
+    }
+    public function save(array $update_field)
     {
+        if(empty($this->options['where']))
+        {
+            //没条件返回0条
+            return 0;
+        }
 
+        $this->options['update_field']=join(',',array_map(function ($field){
+            return "$field=:".str_replace('.','_',$field);
+        },array_keys($update_field)));
+        $this->options['params']=$update_field;
+        $options=$this->parseOptions();
+        $sql=$this->buildUpdateSql($options);
+        if(false===$num=$this->execute($sql,$options['params']))
+        {
+            return false;
+        }
+        return $num;
     }
-    public function addall(){
+    public function add(array $add_data){
 
+        if(false===$this->addall([$add_data]))
+        {
+            return false;
+        }
+        return $this->initConnect(true)->insert_id;
     }
-    public function value(){
+    public function addall(array $data_lists)
+    {
+        $this->options['insert_fields']=[];
+        $this->options['insert_values']=[];
+        $index=0;
+        $this->options['params']=[];
+        foreach ($data_lists as $data)
+        {
+            $cur_value=[];
+            foreach ($data as $field =>$value)
+            {
+                if(empty($index))
+                {
+                    $this->options['insert_fields'][]="`$field`";
+                }
+                $field_key=str_replace('.','_',$field)."_$index";
+                $cur_value[]=':'.$field_key;
+                $this->options['params'][$field_key]=$value;
+            }
+            $this->options['insert_values'][]='('.join(',',$cur_value).')';
+            $index++;
+        }
+        $this->options['insert_fields']=join(',',$this->options['insert_fields']);
+        $this->options['insert_values']=join(',',$this->options['insert_values']);
+        $options=$this->parseOptions();
+        $sql=$this->buildInsertSql($options);
+        if(false===$num=$this->execute($sql,$options['params']))
+        {
+            return false;
+        }
+        return $num;
+    }
+    protected function buildInsertSql($options){
+        $sql="INSERT INTO _TABLE_ (_INSERT_FIELDS_) VALUES _INSERT_VALUES_";
+        return str_replace([
+            '_TABLE_',
+            '_INSERT_FIELDS_',
+            '_INSERT_VALUES_',
+        ],
+            [
+                $options['table'],
+                $options['insert_fields'],
+                $options['insert_values'],
+            ],
+            $sql
+        );
+    }
 
+    /**
+     * @return bool|int
+     * @throws Exception
+     * @throws InvalidArgumentException
+     */
+    public function delete(){
+        if(empty($this->options['where']))
+        {
+            //没条件返回0条
+            return 0;
+        }
+        $options=$this->parseOptions();
+        $sql=$this->buildDeleteSql($options);
+        if(false===$num=$this->execute($sql,$options['params']))
+        {
+            return false;
+        }
+        return $num;
+    }
+    protected function buildDeleteSql($options){
+        $sql="DELETE FROM _TABLE_ WHERE _WHERE_ _LIMIT_";
+        return str_replace([
+            '_TABLE_',
+            '_WHERE_',
+            '_LIMIT_',
+        ],
+            [
+                $options['table'],
+                $options['where'],
+                $options['limit'],
+            ],
+            $sql
+        );
     }
 }

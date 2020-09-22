@@ -145,7 +145,7 @@ class App
 
     /**
      * @param $name
-     * @param array $vars
+     * @param bool $newInstances
      * @return mixed|null
      */
     public function get($name,$newInstances=false)
@@ -170,6 +170,8 @@ class App
      * 递归获取实例化参数 注入
      * @param ReflectionMethod $method
      * @return array
+     * @throws InvalidArgumentException
+     * @throws \ReflectionException
      */
     public function getArgv(ReflectionMethod $method)
     {

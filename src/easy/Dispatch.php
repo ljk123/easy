@@ -40,6 +40,10 @@ class Dispatch implements Container
      * hello_world/index_aa_aa 对应controller下 HelloWorld::indexAaAa
      *
      * 精准匹配 如果未找到类直接抛出异常 方法通过 method_exists判断
+     * @throws ClassNotFoundException
+     * @throws InvalidArgumentException
+     * @throws MethodNotFoundException
+     * @throws RouteNotFoundException
      * @throws \ReflectionException
      */
     public function run(){
