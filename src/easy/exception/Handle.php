@@ -14,7 +14,8 @@ class Handle implements Container
      * @param \Exception $exception
      */
     public function report($exception){
-        //todo
+        throw $exception;
+        //todo 渲染异常
         $this->app->response->send($exception->getMessage().$exception->getFile().":".$exception->getLine());
     }
     private function __clone()

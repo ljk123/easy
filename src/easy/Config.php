@@ -3,7 +3,6 @@
 
 namespace easy;
 
-use easy\App;
 use easy\app\Container;
 
 class Config implements Container
@@ -57,8 +56,8 @@ class Config implements Container
     /**
      * 设置配置参数 name为数组则为批量设置
      * @access public
-     * @param  array  $config 配置参数
-     * @param  string $name 配置名
+     * @param array $config 配置参数
+     * @param string $name 配置名
      * @return array
      */
     public function set(array $config, string $name = null)
@@ -82,7 +81,7 @@ class Config implements Container
     /**
      * 检测配置是否存在
      * @access public
-     * @param  string $name 配置参数名（支持多级配置 .号分割）
+     * @param string $name 配置参数名（支持多级配置 .号分割）
      * @return bool
      */
     public function has(string $name)
@@ -93,7 +92,7 @@ class Config implements Container
     /**
      * 获取一级配置
      * @access protected
-     * @param  string $name 一级配置名
+     * @param string $name 一级配置名
      * @return array
      */
     protected function pull(string $name)
@@ -106,8 +105,8 @@ class Config implements Container
     /**
      * 获取配置参数 为空则获取所有配置
      * @access public
-     * @param  string $name    配置参数名（支持多级配置 .号分割）
-     * @param  mixed  $default 默认值
+     * @param string $name 配置参数名（支持多级配置 .号分割）
+     * @param mixed $default 默认值
      * @return mixed
      */
     public function get(string $name = null, $default = null)

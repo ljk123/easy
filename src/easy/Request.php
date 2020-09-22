@@ -4,30 +4,31 @@
 namespace easy;
 
 use easy\app\Container;
+use easy\exception\InvalidArgumentException;
 
 /**
  * Class Request
- * @method srting getPath
+ * @method string getPath
  * @method array header
  * @method array server
  * @method array get
  * @method array post
  * @method array files
- * @method srting content
+ * @method string content
  * @package easy
  */
 class Request implements Container
 {
-    protected $dirver;
+    protected $drive;
 
     private function __construct($type)
     {
         $class='easy\\request\\'.strtolower($type).'\\Request';
         if(!class_exists($class))
         {
-            //todo excption
+            throw new InvalidArgumentException('request type does not supported:'.$type);
         }
-        $this->dirver=new $class;
+        $this->drive=new $class;
     }
 
     public static function __make(App $app)
@@ -38,9 +39,9 @@ class Request implements Container
     }
     public function __call($name, $arguments)
     {
-        if(method_exists($this->dirver,$name))
+        if(method_exists($this->drive,$name))
         {
-            return call_user_func_array([$this->dirver,$name],$arguments);
+            return call_user_func_array([$this->drive,$name],$arguments);
         }
     }
 }

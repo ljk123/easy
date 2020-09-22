@@ -3,6 +3,8 @@
 
 namespace easy;
 
+use easy\exception\InvalidArgumentException;
+
 /**
  * Class Response
  * @method void setHeader(string $key, string $value)
@@ -14,7 +16,7 @@ namespace easy;
 
 class Response
 {
-    protected $dirver;
+    protected $drive;
     private function __clone()
     {
     }
@@ -23,9 +25,9 @@ class Response
         $class='easy\\response\\'.strtolower($type).'\\Response';
         if(!class_exists($class))
         {
-            //todo excption
+            throw new InvalidArgumentException('response type does not supported:'.$type);
         }
-        $this->dirver=new $class;
+        $this->drive=new $class;
     }
 
     public static function __make(App $app)
@@ -36,9 +38,9 @@ class Response
     }
     public function __call($name, $arguments)
     {
-        if(method_exists($this->dirver,$name))
+        if(method_exists($this->drive,$name))
         {
-            return call_user_func_array([$this->dirver,$name],$arguments);
+            return call_user_func_array([$this->drive,$name],$arguments);
         }
     }
     public function json( $data,int $code=null){

@@ -115,6 +115,7 @@ class Db implements Container
     //提供 query execute 方法
 
     /**
+     *
      * @param string $sql
      * @param array|null $params
      * @return array|bool
@@ -132,6 +133,7 @@ class Db implements Container
     }
 
     /**
+     *
      * @param string $sql
      * @param array $params
      * @return bool|int
@@ -147,13 +149,25 @@ class Db implements Container
         return $result;
     }
     //事务
+
+    /**
+     * @throws Exception
+     */
     public function startTrans(){
         return $this->initConnect(true)->startTrans();
     }
+
+    /**
+     * @throws Exception
+     */
     public function rollback(){
         return $this->initConnect(true)->rollback();
 
     }
+
+    /**
+     * @throws Exception
+     */
     public function commit(){
         return $this->initConnect(true)->commit();
     }
@@ -175,7 +189,6 @@ class Db implements Container
         {
             throw new InvalidArgumentException('table mast be string or array,'.gettype($table).' gieven');
         }
-        $prefix=$this->config[0]['prefix'];
         $this->options['table']=$table;
         return $this;
     }
@@ -213,10 +226,11 @@ class Db implements Container
      * 其他语法写原生语句
      * 多次调用逻辑是and
      * @param $whereItem
+     * @param array|null $params
      * @return $this
      * @throws InvalidArgumentException
      */
-    public function where($whereItem){
+    public function where($whereItem,array $params=null){
         if(empty($this->options['where']))
         {
             $this->options['where']=[
@@ -240,6 +254,10 @@ class Db implements Container
         }
         elseif(is_string($whereItem)){
             $this->options['where']['string'][]=$whereItem;
+            if($params)
+            {
+                $this->options['where']['params']=array_merge($this->options['where']['params'],$params);
+            }
         }
         else{
             throw new InvalidArgumentException('alias mast be string or array,'.gettype($whereItem).' gieven');
@@ -247,6 +265,12 @@ class Db implements Container
         return $this;
 
     }
+
+    /**
+     * @param int $limit
+     * @param int $offset
+     * @return $this
+     */
     public function limit(int $limit,int $offset=null){
         if(empty($offset))
         {
@@ -256,6 +280,12 @@ class Db implements Container
         $this->options['limit']=compact('limit','offset');
         return $this;
     }
+
+    /**
+     * @param int $page
+     * @param int $size
+     * @return $this
+     */
     public function page(int $page,int $size=null){
         if(is_null($size))
         {
@@ -263,6 +293,11 @@ class Db implements Container
         }
         return $this->limit(($page-1)*$size,$size);
     }
+
+    /**
+     * @return array
+     * @throws InvalidArgumentException
+     */
     protected function parseOptions(){
         $options=$this->options;
         $this->options=[];
@@ -360,6 +395,7 @@ class Db implements Container
     /**
      * @return array|bool
      * @throws InvalidArgumentException
+     * @throws Exception
      */
     public function find(){
         $this->limit(1);
@@ -377,6 +413,7 @@ class Db implements Container
     /**
      * @return array|bool
      * @throws InvalidArgumentException
+     * @throws Exception
      */
     public function select()
     {
@@ -392,6 +429,13 @@ class Db implements Container
         }
         return $result;
     }
+
+    /**
+     * @param string $field
+     * @return array|bool|mixed
+     * @throws InvalidArgumentException
+     * @throws Exception
+     */
     public function value(string $field){
         $this->field($field . ' easy_value');
         if(false===$result=$this->find())
@@ -404,6 +448,13 @@ class Db implements Container
         }
         return $result['easy_value'];
     }
+
+    /**
+     * @param string $field
+     * @return array|bool
+     * @throws Exception
+     * @throws InvalidArgumentException
+     */
     public function column(string $field){
         $this->field($field . ' easy_column');
         if(false===$result=$this->select())
@@ -438,6 +489,13 @@ class Db implements Container
             $sql
         );
     }
+
+    /**
+     * @param array $update_field
+     * @return bool|int
+     * @throws Exception
+     * @throws InvalidArgumentException
+     */
     public function save(array $update_field)
     {
         if(empty($this->options['where']))
@@ -458,15 +516,28 @@ class Db implements Container
         }
         return $num;
     }
+
+    /**
+     * @param array $add_data
+     * @return bool|mixed
+     * @throws Exception
+     */
     public function add(array $add_data){
 
-        if(false===$this->addall([$add_data]))
+        if(false===$this->addAll([$add_data]))
         {
             return false;
         }
         return $this->initConnect(true)->insert_id;
     }
-    public function addall(array $data_lists)
+
+    /**
+     * @param array $data_lists
+     * @return bool|int
+     * @throws Exception
+     * @throws InvalidArgumentException
+     */
+    public function addAll(array $data_lists)
     {
         $this->options['insert_fields']=[];
         $this->options['insert_values']=[];

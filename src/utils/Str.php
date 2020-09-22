@@ -25,17 +25,19 @@ class Str
 
         return $value;
     }
+
     /**
      * 下划线转换驼峰 首字母大写
-     * @param string $string
+     * @param string $string $string
      * @return string
      */
     public static function studly(string $string){
         return str_replace(' ','',ucwords(str_replace(['-', '_'], ' ', $string)));
     }
+
     /**
      * 下划线转换驼峰 首字母小写
-     * @param string $string
+     * @param string $string $string
      * @return string
      */
     public static function camel(string $string){

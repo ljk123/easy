@@ -11,7 +11,6 @@ use easy\exception\MethodNotFoundException;
 use easy\exception\RouteNotFoundException;
 use easy\utils\Str;
 use ReflectionClass;
-use ReflectionMethod;
 
 class Dispatch implements Container
 {
