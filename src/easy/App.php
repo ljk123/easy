@@ -100,7 +100,6 @@ class App
         }
         if(isset($e))
         {
-            throw $e;//todo
             $this->handle->report($e);
         }
     }
