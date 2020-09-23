@@ -5,10 +5,6 @@ namespace easy;
 
 use easy\exception\ErrorException;
 use easy\exception\Handle;
-use easy\exception\InvalidArgumentException;
-use ReflectionException;
-use ReflectionMethod;
-use ReflectionClass;
 
 /**
  * Class App
@@ -39,7 +35,9 @@ class App
         $this->path['root'] = $rootPath ? rtrim($rootPath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR : $this->getDefaultRootPath();
         $this->path['app'] = $this->path['root'] . 'app' . DIRECTORY_SEPARATOR;
         $this->path['runtime'] = $this->path['root'] . 'runtime' . DIRECTORY_SEPARATOR;
-        Container::getInstance()->bind('app',$this);
+        /**@var Container $container*/
+        $container=Container::getInstance();
+        $container->bind('app',$this);
     }
     protected function getDefaultRootPath(){
         return dirname($this->path['easy'], 4) . DIRECTORY_SEPARATOR;
@@ -86,11 +84,6 @@ class App
         return null;
     }
 
-
-    public function runningInConsole()
-    {
-        return php_sapi_name() === 'cli' || php_sapi_name() === 'phpdbg';
-    }
     public function run(){
         error_reporting(E_ALL);
         try {
@@ -107,15 +100,17 @@ class App
         }
         if(isset($e))
         {
-            throw $e;
+            throw $e;//todo
             $this->handle->report($e);
         }
     }
     protected function init(){
         set_error_handler([$this, 'appError']);
+        /**@var Container $container*/
+        $container=Container::getInstance();
         foreach ($this->binds as $k=>$v)
         {
-            Container::getInstance()->set($k,$v);
+            $container->set($k,$v);
         }
     }
     public function appError(int $errno, string $errstr, string $errfile , int $errline )

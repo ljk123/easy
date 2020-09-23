@@ -4,9 +4,11 @@
 namespace easy\exception;
 
 use easy\App;
+use easy\traits\Singleton;
 
 class Handle
 {
+    use Singleton;
     private $app;
 
     /**
@@ -24,10 +26,6 @@ class Handle
     private function __construct(APP $app)
     {
         $this->app=$app;
-    }
-    public static function __make(App $app)
-    {
-        return new static($app);
     }
 
 }

@@ -8,11 +8,13 @@ use easy\exception\ClassNotFoundException;
 use easy\exception\InvalidArgumentException;
 use easy\exception\MethodNotFoundException;
 use easy\exception\RouteNotFoundException;
+use easy\traits\Singleton;
 use easy\utils\Str;
 use ReflectionClass;
 
 class Dispatch
 {
+    use Singleton;
     private function __clone()
     {
 
@@ -23,11 +25,6 @@ class Dispatch
     {
         $this->app=$app;
         $this->url=$app->request->getPath();
-    }
-
-    public static function __make(App $app)
-    {
-        return new static($app);
     }
 
     /**

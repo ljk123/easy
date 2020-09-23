@@ -71,6 +71,7 @@ class Mysql
             PDO::ATTR_ERRMODE           =>  PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_ORACLE_NULLS      =>  PDO::NULL_NATURAL,
             PDO::ATTR_STRINGIFY_FETCHES =>  false,
+            PDO::ATTR_TIMEOUT           =>  30,//好像没效果 以后在测试
         ],(array)$config['options']);
 
         //两个方式设置字符集

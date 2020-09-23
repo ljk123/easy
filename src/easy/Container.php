@@ -60,48 +60,39 @@ class Container
             return $this->instances[$key];
         }
         $class=$this->map[$key];
-        // 反射类
-        $reflect = new ReflectionClass($class);
-        //先判断是否有make方法
-        if($reflect->hasMethod('__make'))
-        {
-            $args=$this->getArgv($reflect->getMethod('__make'));
-            return call_user_func_array([$class,'__make'],$args);
-        }
-        //先判断是否有make方法
-        if($reflect->hasMethod('getInstance'))
-        {
-            $args=$this->getArgv($reflect->getMethod('getInstance'));
-            return call_user_func_array([$class,'getInstance'],$args);
-        }
-        // 获取类的构造函数
-        $c = $reflect->getConstructor();
-        if (!$c) {
-            // 如果没有构造函数，返回创建对象
-            return $reflect->newInstance();
-        }
-        // 获取函数里面的参数
-        $params = $c->getParameters();
-        if (empty($params)) {
-            // 如果构造函数里面没有参数，返回创建对象
-            return $reflect->newInstance();
-        }
-        $args=[];
-        // 遍历构造函数里面的参数
-        foreach ($params as $param) {
-            $class = $param->getClass();
-            if (!$class) {
-
-            } else {
-                $args[] = $this->get($class->name);
-            }
-        }
-        // 返回创建对象
-        return $reflect->newInstanceArgs($args);
+        return $this->reflectNew($class);
     }
 
     /**
-     * 递归获取实例化参数 注入
+     * 反射实例化
+     * @param $class
+     * @return mixed|object
+     * @throws InvalidArgumentException
+     * @throws ReflectionException
+     */
+    protected function reflectNew($class){
+        $reflect = new ReflectionClass($class);
+        // 获取类的构造函数
+        $constructor = $reflect->getConstructor();
+        $args=[];
+        if ($constructor) {
+            // 如果没有构造函数，返回创建对象
+            $args=$this->getArgv($constructor);
+        }
+
+        if(in_array(Singleton::class,$reflect->getTraitNames()))
+        {
+            //如果是Singleton则参数取构造 调用 getInstance
+            return call_user_func_array([$class,'getInstance'],$args);
+        }
+        else{
+            // 直接new
+            return $reflect->newInstanceArgs($args);
+        }
+    }
+
+    /**
+     * 获取依赖
      * @param ReflectionMethod $method
      * @return array
      * @throws InvalidArgumentException

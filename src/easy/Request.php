@@ -4,6 +4,7 @@
 namespace easy;
 
 use easy\exception\InvalidArgumentException;
+use easy\traits\Singleton;
 
 /**
  * Class Request
@@ -18,10 +19,12 @@ use easy\exception\InvalidArgumentException;
  */
 class Request
 {
+    use Singleton;
     protected $drive;
 
-    private function __construct($type)
+    private function __construct(App $app)
     {
+        $type=$app->config->get('server_type');
         $class='easy\\request\\'.strtolower($type).'\\Request';
         if(!class_exists($class))
         {
@@ -30,12 +33,6 @@ class Request
         $this->drive=new $class;
     }
 
-    public static function __make(App $app)
-    {
-        $type = $app->config->get('server_type');
-
-        return new static($type);
-    }
     public function __call($name, $arguments)
     {
         if(method_exists($this->drive,$name))

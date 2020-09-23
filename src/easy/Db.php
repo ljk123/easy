@@ -6,6 +6,7 @@ namespace easy;
 use easy\db\fpm\Mysql;
 use easy\exception\DbException;
 use easy\exception\InvalidArgumentException;
+use easy\traits\Singleton;
 
 /**
  * Class Db
@@ -15,13 +16,15 @@ use easy\exception\InvalidArgumentException;
 
 class Db
 {
+    use Singleton;
     private function __clone()
     {
         
     }
 
-    private function __construct($cfg)
+    private function __construct(App $app)
     {
+        $cfg=$app->config->load('database','database');
         //
         if($hosts=strpos($cfg['host'],','))
         {
@@ -50,11 +53,6 @@ class Db
         }
     }
 
-    public static function __make(App $app)
-    {
-        $cfg=$app->config->load('database','database');
-        return new static($cfg);
-    }
     //属性部分
     protected $config;//配置
     /**@var Mysql $master_link*/

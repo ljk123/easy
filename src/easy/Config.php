@@ -3,8 +3,11 @@
 
 namespace easy;
 
+use easy\traits\Singleton;
+
 class Config
 {
+    use Singleton;
     protected $config=[];
     /**
      * @var string
@@ -14,20 +17,14 @@ class Config
     private function __clone()
     {
     }
-    private function __construct(string $path = null)
+    private function __construct(App $app)
     {
-        $this->path = $path ?: '';
+        $this->path = $app->getAppPath().'config'.DIRECTORY_SEPARATOR;
         $config=$this->load('config');
         foreach ($config['config_files'] as $file=>$name)
         {
             $this->load($file,$name);
         }
-    }
-    public static function __make(App $app)
-    {
-        $path = $app->getAppPath().'config'.DIRECTORY_SEPARATOR;
-
-        return new static($path);
     }
 
     /**
