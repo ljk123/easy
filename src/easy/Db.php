@@ -4,6 +4,7 @@
 namespace easy;
 
 use easy\db\fpm\Mysql;
+use easy\exception\DbException;
 use easy\exception\InvalidArgumentException;
 
 /**
@@ -77,9 +78,7 @@ class Db
             $config=$this->config[0];
             $link=new Mysql();
             if(false===$link->connect($config)){
-                //todo exception
-                var_dump($link->error,$link->errno);
-                throw new Exception();
+                throw new DbException($link->connect_error,$config);
             }
             return $this->master_link=$link;
         }
@@ -93,12 +92,11 @@ class Db
                 return $this->slave_link=$this->initConnect(true);
             }
             //随机取一个从库配置
+            /**@var array $config*/
             $config=mt_rand(1,count($this->config)-1);
             $link=new Mysql();
             if(false===$link->connect($config)){
-                //todo exception
-                var_dump($link->error,$link->errno);
-                throw new Exception();
+                throw new DbException($link->connect_error,$config);
             }
             return $this->master_link=$link;
         }

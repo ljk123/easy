@@ -8,7 +8,14 @@ use easy\Exception;
 class DbException extends Exception
 {
     protected $config;
-    public function __construct(string $message, array $config, $previous = null)
+
+    /**
+     * DbException constructor.
+     * @param string $message
+     * @param array $config
+     * @param null $previous
+     */
+    public function __construct($message,$config, $previous = null)
     {
         $this->message = $message;
         unset($config['database']);

@@ -33,16 +33,13 @@ class App
         'app'=>'',
         'runtime'=>'',
     ];
-    /**@var Container $container */
-    protected $container;
     public function __construct($rootPath='')
     {
         $this->path['easy'] = dirname(__DIR__) . DIRECTORY_SEPARATOR;
         $this->path['root'] = $rootPath ? rtrim($rootPath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR : $this->getDefaultRootPath();
         $this->path['app'] = $this->path['root'] . 'app' . DIRECTORY_SEPARATOR;
         $this->path['runtime'] = $this->path['root'] . 'runtime' . DIRECTORY_SEPARATOR;
-        $this->container=Container::getInstance();
-        $this->container->bind('app',$this);
+        Container::getInstance()->bind('app',$this);
     }
     protected function getDefaultRootPath(){
         return dirname($this->path['easy'], 4) . DIRECTORY_SEPARATOR;
@@ -82,7 +79,11 @@ class App
 
     //容器魔方方法
     public function __get($name){
-        return $this->container->get($name);
+        if(array_key_exists($name,$this->binds))
+        {
+            return Container::getInstance()->get($name);
+        }
+        return null;
     }
 
 
@@ -114,7 +115,7 @@ class App
         set_error_handler([$this, 'appError']);
         foreach ($this->binds as $k=>$v)
         {
-            $this->container->set($k,$v);
+            Container::getInstance()->set($k,$v);
         }
     }
     public function appError(int $errno, string $errstr, string $errfile , int $errline )

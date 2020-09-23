@@ -80,8 +80,8 @@ class Mysql
             $this->pdo = new PDO($dns, $config['username'], $config['password'], $options);
         }catch (PDOException $e)
         {
-            $this->errno=$e->getCode();
-            $this->error=$e->getMessage();
+            $this->connect_errno=$e->getCode();
+            $this->connect_error=$e->getMessage();
             $this->pdo=null;
             return false;
         }
@@ -150,11 +150,7 @@ class Mysql
         if(!empty($params))
         {
             foreach ($params as $key => $val) {
-                if(is_array($val)){
-                    $stat->bindValue($key, $val[0], $val[1]);
-                }else{
-                    $stat->bindValue($key, $val);
-                }
+                $stat->bindValue($key, $val,is_int($val)?PDO::PARAM_INT:PDO::PARAM_STR);
             }
         }
         try {
