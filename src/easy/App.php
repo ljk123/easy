@@ -32,12 +32,16 @@ class App
         'app'=>'',
         'runtime'=>'',
     ];
+    /**@var Container $container */
+    protected $container;
     public function __construct($rootPath='')
     {
         $this->path['easy'] = dirname(__DIR__) . DIRECTORY_SEPARATOR;
         $this->path['root'] = $rootPath ? rtrim($rootPath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR : $this->getDefaultRootPath();
         $this->path['app'] = $this->path['root'] . 'app' . DIRECTORY_SEPARATOR;
         $this->path['runtime'] = $this->path['root'] . 'runtime' . DIRECTORY_SEPARATOR;
+        $this->container=Container::getInstance();
+        $this->container->bind('app',$this);
     }
     protected function getDefaultRootPath(){
         return dirname($this->path['easy'], 4) . DIRECTORY_SEPARATOR;
@@ -65,8 +69,6 @@ class App
     }
     /****路径相关 结束*******/
 
-    /******容器相关 开始******/
-
 
     protected $binds=[
         'config'=>Config::class,
@@ -76,94 +78,10 @@ class App
         'handle'=>Handle::class,
         'dispatch'=>Dispatch::class,
     ];
-    protected $bindings=[];
-    protected $bind_instances=[];//实例化过的
-    protected $out_instances=[];//外部实力
-    
-    public function hasBindClass(string $class){
-        return array_search($class,$this->binds);
-    }
 
-
-    /**
-     * @param string $name
-     * @param string $value
-     * @return bool
-     */
-    public function set($name, $value='', $vars=[]){
-        if(isset($this->bindings[$name]) )
-        {
-            return false;
-        }
-        else{
-            if(isset($this->binds[$name]))
-            {
-                $class=$this->binds[$name];
-                //省略第二个参数
-                if(is_array($value) && empty($vars))
-                {
-                    $vars=$value;
-                }
-            }
-            elseif(class_exists($value)){
-                $class=$value;
-            }
-            elseif($value instanceof \Closure){
-                $this->binds[$name]=call_user_func_array($value,$vars);
-                return true;
-            }
-            else{
-                return false;
-            }
-
-            //匿名函数 调用的时候才会被实例化
-            $this->bindings[$name]= function () use ($class,$vars)
-            {
-                //首先调用__make
-                if(method_exists($class,'__make'))
-                {
-                    return call_user_func_array([$class,'__make'],$vars);
-                }
-                elseif(method_exists($class,'getInstance'))
-                {
-                    return call_user_func_array([$class,'getInstance'],$vars);
-                }
-                else{
-                    return new $class($vars);
-                }
-
-            };
-
-            return true;
-            
-        }
-    }
-    //兼容魔方方法
-    public function __set($key,$value){
-        return $this->set($key,$value);
-    }
-
-    /**
-     * @param $name
-     * @param bool $newInstances
-     * @return mixed|null
-     */
-    public function get($name,$newInstances=false)
-    {
-        if(!array_key_exists($name,$this->bindings))
-        {
-            return null;
-        }
-        if(!$newInstances && isset($this->bind_instances[$name]))
-        {
-            return $this->bind_instances[$name];
-        }
-        //实例化
-        return $this->bind_instances[$name]=call_user_func($this->bindings[$name]);
-    }
-    //兼容魔方方法
+    //容器魔方方法
     public function __get($name){
-        return $this->get($name);
+        return $this->container->get($name);
     }
 
     /**
@@ -175,56 +93,8 @@ class App
      */
     public function getArgv(ReflectionMethod $method)
     {
-        $params=$method->getParameters();
-        $argv=[];
-        foreach ($params as $param)
-        {
-            if($get_class=$param->getClass())
-            {
-                $name=$get_class->name;
-                if(isset($this->out_instances[$name]))
-                {
-                    $instance=$this->out_instances[$name];
-                }
-                elseif($key=$this->hasBindClass($name))
-                {
-                    $instance=$this->get($key);
-                }
-                elseif($name===App::class)
-                {
-                    $instance=$this;
-                }
-                else{
-                    $ref_class=new ReflectionClass($name);
-                    $constructor=$ref_class->getConstructor();
-                    if($constructor){
-                        //如果存在构造方法
-                        $argvs=$this->getArgv($constructor);
-                        $instance=$ref_class->newInstanceArgs($argvs);
-                    }
-                    else{
-                        $instance=$ref_class->newInstance();
-                    }
-                    //非app类加入map中
-                    $this->out_instances[$name]=$instance;
-                }
-            }
-            if(isset($instance)){
-                $argv[]=$instance;
-                unset($instance);
-            }
-            else{
-                //如果没有默认值 报错
-                if(!$param->isDefaultValueAvailable()){
-                    throw new InvalidArgumentException("Failed to retrieve the default value:".$method->class."::".$method->name."->".$param->name);
-                }
-                $argv[]=$param->getDefaultValue();
-            }
-        }
-        return $argv;
+        return $this->container->getArgv($method);
     }
-
-    /******容器相关 结束******/
 
 
     public function runningInConsole()
@@ -247,6 +117,7 @@ class App
         }
         if(isset($e))
         {
+            throw $e;
             $this->handle->report($e);
         }
     }
@@ -254,7 +125,7 @@ class App
         set_error_handler([$this, 'appError']);
         foreach ($this->binds as $k=>$v)
         {
-            $this->set($k,[$this]);
+            $this->container->set($k,$v);
         }
     }
     public function appError(int $errno, string $errstr, string $errfile , int $errline )

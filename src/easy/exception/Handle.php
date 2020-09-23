@@ -10,8 +10,10 @@ use easy\app\Container;
 class Handle implements Container
 {
     private $app;
+
     /**
      * @param \Exception $exception
+     * @throws \Exception
      */
     public function report($exception){
         throw $exception;
