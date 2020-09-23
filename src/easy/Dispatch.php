@@ -4,7 +4,6 @@
 namespace easy;
 
 
-use easy\app\Container as ContainerInterface;
 use easy\exception\ClassNotFoundException;
 use easy\exception\InvalidArgumentException;
 use easy\exception\MethodNotFoundException;
@@ -12,7 +11,7 @@ use easy\exception\RouteNotFoundException;
 use easy\utils\Str;
 use ReflectionClass;
 
-class Dispatch implements ContainerInterface
+class Dispatch
 {
     private function __clone()
     {

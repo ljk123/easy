@@ -3,7 +3,6 @@
 
 namespace easy;
 
-use easy\app\Container;
 use easy\exception\InvalidArgumentException;
 
 /**
@@ -17,7 +16,7 @@ use easy\exception\InvalidArgumentException;
  * @method string content
  * @package easy
  */
-class Request implements Container
+class Request
 {
     protected $drive;
 

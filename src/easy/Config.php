@@ -3,9 +3,7 @@
 
 namespace easy;
 
-use easy\app\Container;
-
-class Config implements Container
+class Config
 {
     protected $config=[];
     /**

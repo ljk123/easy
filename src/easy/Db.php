@@ -3,11 +3,7 @@
 
 namespace easy;
 
-
-use easy\app\Container;
 use easy\db\fpm\Mysql;
-use easy\exception\DbException;
-use easy\exception\ErrorException;
 use easy\exception\InvalidArgumentException;
 
 /**
@@ -16,7 +12,7 @@ use easy\exception\InvalidArgumentException;
  * @package easy
  */
 
-class Db implements Container
+class Db
 {
     private function __clone()
     {

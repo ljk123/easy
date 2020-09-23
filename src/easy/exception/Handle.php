@@ -3,11 +3,9 @@
 
 namespace easy\exception;
 
-
 use easy\App;
-use easy\app\Container;
 
-class Handle implements Container
+class Handle
 {
     private $app;
 
