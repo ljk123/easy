@@ -4,7 +4,7 @@
 namespace easy;
 
 
-use easy\app\Container;
+use easy\app\Container as ContainerInterface;
 use easy\exception\ClassNotFoundException;
 use easy\exception\InvalidArgumentException;
 use easy\exception\MethodNotFoundException;
@@ -12,7 +12,7 @@ use easy\exception\RouteNotFoundException;
 use easy\utils\Str;
 use ReflectionClass;
 
-class Dispatch implements Container
+class Dispatch implements ContainerInterface
 {
     private function __clone()
     {
@@ -74,7 +74,7 @@ class Dispatch implements Container
         $constructor=$ref_class->getConstructor();
         if($constructor){
             //如果存在构造方法
-            $argv=$this->app->getArgv($constructor);
+            $argv=Container::getInstance()->getArgv($constructor);
             $controller_instance=$ref_class->newInstanceArgs($argv);
         }
         else{
@@ -83,7 +83,7 @@ class Dispatch implements Container
         if(method_exists($class,$action))
         {
             $method=$ref_class->getMethod($action);
-            $argv=$this->app->getArgv($method);
+            $argv=Container::getInstance()->getArgv($method);
         }
         else{
             //__call

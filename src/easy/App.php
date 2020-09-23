@@ -6,6 +6,7 @@ namespace easy;
 use easy\exception\ErrorException;
 use easy\exception\Handle;
 use easy\exception\InvalidArgumentException;
+use ReflectionException;
 use ReflectionMethod;
 use ReflectionClass;
 
@@ -82,18 +83,6 @@ class App
     //容器魔方方法
     public function __get($name){
         return $this->container->get($name);
-    }
-
-    /**
-     * 递归获取实例化参数 注入
-     * @param ReflectionMethod $method
-     * @return array
-     * @throws InvalidArgumentException
-     * @throws \ReflectionException
-     */
-    public function getArgv(ReflectionMethod $method)
-    {
-        return $this->container->getArgv($method);
     }
 
 
