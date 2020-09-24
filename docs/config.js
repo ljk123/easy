@@ -1,22 +1,22 @@
 var CONFIG = {
   // 网页 title
-  title: 'Book-Cli',
+  title: 'EasyPHP',
   
   // 网页 keywords
-  keywords: 'book, book-cli, doc, example',
+  keywords: 'easyphp',
 
   // 网页 description
-  description: 'Init html book with markdown files.',
+  description: 'easyPHP framework.',
 
   // 链接是否打开新的窗口
   openNewWindow: true,
 
   // 页面右上角的 github 链接
-  github: 'https://github.com/vvpvvp/book-cli',
+  github: 'https://github.com/ljk123/easy',
 
   // 左侧目录的md文件
-  summaryMd: 'SUMMARY.md',
+  summaryMd: 'md/left.md',
 
   // 网页默认访问的md文件
-  index: 'README.md'
+  index: 'md/index.md'
 }
