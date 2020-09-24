@@ -15,8 +15,8 @@ var CONFIG = {
   github: 'https://github.com/ljk123/easy',
 
   // 左侧目录的md文件
-  summaryMd: 'md/left.md',
+  summaryMd: 'left.md',
 
   // 网页默认访问的md文件
-  index: 'md/index.md'
+  index: 'index.md'
 }
