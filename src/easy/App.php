@@ -102,15 +102,7 @@ class App
             $this->init();
             $this->dispatch->run();
         }
-        catch (\Exception $e)
-        {
-            //exception
-        }
         catch (\Throwable $e)
-        {
-            //error
-        }
-        if(isset($e))
         {
             $this->handle->report($e);
         }

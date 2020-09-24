@@ -4,8 +4,9 @@
 namespace easy\exception;
 
 use easy\App;
+use easy\Exception;
 use easy\traits\Singleton;
-use Exception;
+use Throwable;
 
 class Handle
 {
@@ -13,13 +14,13 @@ class Handle
     private $app;
 
     /**
-     * @param Exception $e
-     * @throws Exception
+     * @param Throwable $e
+     * @throws Throwable
      */
-    public function report($e){
+    public function report(Throwable $e){
         if($this->app->config->get('app_debug'))
         {
-            if($e instanceof \easy\Exception)
+            if($e instanceof Exception)
             {
                 $this->app->response->send($e->getMessage().$e->getFile().":".$e->getLine());
             }
