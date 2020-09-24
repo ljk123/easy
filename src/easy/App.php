@@ -17,6 +17,7 @@ use easy\utils\Runtime;
  * @property Cache $cache
  * @property Handle $handle
  * @property Dispatch $dispatch
+ * @property Log $log
  * @property array $begin
  * @method string getEasyPath
  * @method string getRootPath
@@ -79,6 +80,7 @@ class App
         'cache'=>Cache::class,
         'handle'=>Handle::class,
         'dispatch'=>Dispatch::class,
+        'log'=>Log::class,
     ];
 
     //容器魔方方法
@@ -106,6 +108,7 @@ class App
         {
             $this->handle->report($e);
         }
+        $this->log->save();
     }
     protected function init(){
         set_error_handler([$this, 'appError']);
@@ -115,6 +118,7 @@ class App
         {
             $container->set($k,$v);
         }
+        $container->get('log');
     }
     public function appError(int $errno, string $errstr, string $errfile , int $errline )
     {
