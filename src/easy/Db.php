@@ -118,12 +118,12 @@ class Db
     /**
      *
      * @param string $sql
-     * @param array|null $params
+     * @param array $params
      * @return array|bool
      * @throws DbException
      * @throws Exception
      */
-    public function query(string $sql,array $params=null)
+    public function query(string $sql,array $params=[])
     {
         $link=$this->initConnect(false);
         if(false===$result=$this->initConnect(false)->query($sql,$params))

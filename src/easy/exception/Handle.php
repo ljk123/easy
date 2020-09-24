@@ -19,9 +19,15 @@ class Handle
     public function report($e){
         if($this->app->config->get('app_debug'))
         {
-            throw $e;
+            if($e instanceof \easy\Exception)
+            {
+                $this->app->response->send($e->getMessage().$e->getFile().":".$e->getLine());
+            }
+            else{
+                throw $e;
+            }
         }
-        $this->app->response->send($e->getMessage().$e->getFile().":".$e->getLine());
+
     }
     private function __clone()
     {

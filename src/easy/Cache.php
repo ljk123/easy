@@ -3,8 +3,6 @@
 
 namespace easy;
 
-use easy\db\fpm\Mysql;
-use easy\exception\DbException;
 use easy\exception\InvalidArgumentException;
 use easy\traits\Singleton;
 

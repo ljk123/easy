@@ -5,6 +5,7 @@ namespace easy;
 
 use easy\exception\ErrorException;
 use easy\exception\Handle;
+use easy\utils\Runtime;
 
 /**
  * Class App
@@ -16,6 +17,7 @@ use easy\exception\Handle;
  * @property Cache $cache
  * @property Handle $handle
  * @property Dispatch $dispatch
+ * @property array $begin
  * @method string getEasyPath
  * @method string getRootPath
  * @method string getAppPath
@@ -85,10 +87,16 @@ class App
         {
             return Container::getInstance()->get($name);
         }
+        if($name==='begin_time')
+        {
+            return $this->begin_time;
+        }
         return null;
     }
-
+    //开始的时间
+    protected $begin_time;
     public function run(){
+        $this->begin_time= Runtime::microtime();
         error_reporting(E_ALL);
         try {
             $this->init();
