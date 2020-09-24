@@ -12,6 +12,8 @@ use easy\exception\Handle;
  * @property Request $request
  * @property Response $response
  * @property Db $db
+ * @property Redis $redis
+ * @property Cache $cache
  * @property Handle $handle
  * @property Dispatch $dispatch
  * @method string getEasyPath
@@ -71,6 +73,8 @@ class App
         'request'=>Request::class,
         'response'=>Response::class,
         'db'=>Db::class,
+        'redis'=>Redis::class,
+        'cache'=>Cache::class,
         'handle'=>Handle::class,
         'dispatch'=>Dispatch::class,
     ];
@@ -114,9 +118,9 @@ class App
     }
     public function appError(int $errno, string $errstr, string $errfile , int $errline )
     {
-        $exception = new ErrorException( $errstr,$errno, $errfile, $errline);
+        $e = new ErrorException( $errstr,$errno, $errfile, $errline);
         if (error_reporting() & $errno) {
-            throw $exception;
+            throw $e;
         }
     }
     

@@ -13,15 +13,15 @@ class Handle
     private $app;
 
     /**
-     * @param Exception $exception
+     * @param Exception $e
      * @throws Exception
      */
-    public function report($exception){
+    public function report($e){
         if($this->app->config->get('app_debug'))
         {
-            throw $exception;
+            throw $e;
         }
-        $this->app->response->send($exception->getMessage().$exception->getFile().":".$exception->getLine());
+        $this->app->response->send($e->getMessage().$e->getFile().":".$e->getLine());
     }
     private function __clone()
     {
@@ -30,8 +30,8 @@ class Handle
     {
         $this->app=$app;
     }
-    protected function render($exception){
-        $this->app->response->json($exception->getMessage().$exception->getFile().":".$exception->getLine());
+    protected function render($e){
+        $this->app->response->json($e->getMessage().$e->getFile().":".$e->getLine());
     }
 
 }

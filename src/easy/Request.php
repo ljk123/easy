@@ -20,7 +20,7 @@ use easy\traits\Singleton;
 class Request
 {
     use Singleton;
-    protected $drive;
+    protected $driver;
 
     private function __construct(App $app)
     {
@@ -30,14 +30,14 @@ class Request
         {
             throw new InvalidArgumentException('request type does not supported:'.$type);
         }
-        $this->drive=new $class;
+        $this->driver=new $class;
     }
 
     public function __call($name, $arguments)
     {
-        if(method_exists($this->drive,$name))
+        if(method_exists($this->driver,$name))
         {
-            return call_user_func_array([$this->drive,$name],$arguments);
+            return call_user_func_array([$this->driver,$name],$arguments);
         }
     }
 }

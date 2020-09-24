@@ -3,7 +3,7 @@
 
 namespace easy;
 
-use easy\db\fpm\Mysql;
+use easy\db\Interfaces;
 use easy\exception\DbException;
 use easy\exception\InvalidArgumentException;
 use easy\traits\Singleton;
@@ -21,9 +21,14 @@ class Db
     {
         
     }
-
     private function __construct(App $app)
     {
+        $type=$app->config->get('server_type');
+        $class='easy\\db\\'.strtolower($type).'\\Mysql';
+        if(!class_exists($class))
+        {
+            throw new InvalidArgumentException('db type does not supported:'.$type);
+        }
         $cfg=$app->config->load('database','database');
         //
         if($hosts=strpos($cfg['host'],','))
@@ -38,10 +43,10 @@ class Db
             {
                 $config[]=[
                     'host' => $host,
-                    'database' => isset($database[$k])?$database[$k]:$database[0],
-                    'username' => isset($username[$k])?$username[$k]:$username[0],
-                    'password' => isset($password[$k])?$password[$k]:$password[0],
-                    'port'    => isset($port[$k])?$port[$k]:$port[0],
+                    'database' => $database[$k]??$database[0],
+                    'username' => $username[$k]??$username[0],
+                    'password' => $password[$k]??$password[0],
+                    'port'    => $port[$k]??$port[0],
                     'options'            => $cfg['options'],
                     'charset'           => $cfg['charset'],
                     'prefix'            => $cfg['prefix'],
@@ -51,19 +56,21 @@ class Db
         else{
             $this->config=[$cfg];
         }
+        $this->driver_class=$class;
     }
 
     //属性部分
     protected $config;//配置
-    /**@var Mysql $master_link*/
+    /**@var Interfaces $master_link*/
     protected $master_link=null;
-    /**@var Mysql $slave_link*/
+    /**@var Interfaces $slave_link*/
     protected $slave_link=null;
     protected $error='';
+    protected $driver_class;
 
     /**
      * @param bool $is_master
-     * @return Mysql
+     * @return Interfaces
      * @throws Exception
      */
     protected function initConnect(bool $is_master){
@@ -74,7 +81,8 @@ class Db
                 return $this->master_link;
             }
             $config=$this->config[0];
-            $link=new Mysql();
+            /**@var Interfaces $link*/
+            $link=new $this->driver_class;
             if(false===$link->connect($config)){
                 throw new DbException($link->connect_error,$config);
             }
@@ -92,7 +100,8 @@ class Db
             //随机取一个从库配置
             /**@var array $config*/
             $config=mt_rand(1,count($this->config)-1);
-            $link=new Mysql();
+            /**@var Interfaces $link*/
+            $link=new $this->driver_class;
             if(false===$link->connect($config)){
                 throw new DbException($link->connect_error,$config);
             }
@@ -111,6 +120,7 @@ class Db
      * @param string $sql
      * @param array|null $params
      * @return array|bool
+     * @throws DbException
      * @throws Exception
      */
     public function query(string $sql,array $params=null)
@@ -312,7 +322,7 @@ class Db
         //join
         $options['join']=join('',array_map(function ($join) use ($prefix){
             return "{$join['type']} JOIN `$prefix{$join['table']}` {$join['alias']} on {$join['on']} ";
-        },isset($options['join'])?$options['join']:[]));
+        },$options['join']??[]));
 
         //field
         $options['field']=empty($options['field'])?'*':$options['field'];

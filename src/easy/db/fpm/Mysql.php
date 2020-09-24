@@ -3,9 +3,8 @@
 
 namespace easy\db\fpm;
 
+use easy\db\Interfaces;
 use easy\exception\AttrNotFoundException;
-use easy\exception\DbException;
-use easy\exception\InvalidArgumentException;
 use PDO;
 use PDOException;
 use PDOStatement;
@@ -24,7 +23,7 @@ use PDOStatement;
  * @property-read mixed $insert_id
  * @package easy\db
  */
-class Mysql
+class Mysql implements Interfaces
 {
     //只读属性
     protected $config=[];//配置
@@ -61,9 +60,9 @@ class Mysql
      * @param array $config
      * @return bool
      */
-    public function connect($config=[])
+    public function connect(array $config=null)
     {
-        $this->config=$config;
+        $this->config=(array)$config;
         $dns=sprintf("mysql:dbname=%s;host=%s:%d",$config['database'],$config['host'],$config['port']);
 
         $options=array_merge([
@@ -92,9 +91,10 @@ class Mysql
 
     /**
      * @param string $sql
+     * @param array $params
      * @return array|bool
      */
-    public function query(string $sql,array $params=null)
+    public function query(string $sql,array $params=[])
     {
         if(false===$stat= $this->prepare($sql))
         {
@@ -106,11 +106,13 @@ class Mysql
         }
         return $stat->fetchAll(PDO::FETCH_ASSOC);
     }
+
     /**
      * @param string $sql
+     * @param array|null $params
      * @return int|bool
      */
-    public function execute(string $sql,array $params=null)
+    public function execute(string $sql,array $params=[])
     {
         if(false===$stat= $this->prepare($sql))
         {

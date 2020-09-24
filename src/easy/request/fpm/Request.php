@@ -26,7 +26,7 @@ class Request implements Interfaces
         {
             return $header;
         }
-        return isset($header[$name])?$header[$name]:null;
+        return $header[$name]??null;
     }
     public function server($name=null){
 
@@ -34,14 +34,14 @@ class Request implements Interfaces
         {
             return $_SERVER;
         }
-        return isset($_SERVER[$name])?$_SERVER[$name]:null;
+        return $_SERVER[$name]??null;
     }
     public function get($name=null){
         if(is_null($name))
         {
             return $_GET;
         }
-        return isset($_GET[$name])?$_GET[$name]:null;
+        return $_GET[$name]??null;
     }
     public function post($name=null){
         $post= !empty($_POST)?$_POST:json_decode($this->content(),true);
@@ -49,14 +49,14 @@ class Request implements Interfaces
         {
             return $post;
         }
-        return isset($post[$name])?$post[$name]:null;
+        return $post[$name]??null;
     }
     public function files($name=null){
         if(is_null($name))
         {
             return $_FILES;
         }
-        return isset($_FILES[$name])?$_FILES[$name]:null;
+        return $_FILES[$name]??null;
     }
     public function content(){
         return file_get_contents("php://input");
