@@ -18,7 +18,8 @@ use easy\utils\Runtime;
  * @property Handle $handle
  * @property Dispatch $dispatch
  * @property Log $log
- * @property array $begin
+ * @property float $begin_time
+ * @property float $begin_memory
  * @method string getEasyPath
  * @method string getRootPath
  * @method string getAppPath
@@ -34,7 +35,8 @@ class App
         'app'=>'',
         'runtime'=>'',
     ];
-    public function __construct($rootPath='')
+    protected $server_type;
+    public function __construct(string $rootPath='',string $server_type='fpm')
     {
         $this->path['easy'] = dirname(__DIR__) . DIRECTORY_SEPARATOR;
         $this->path['root'] = $rootPath ? rtrim($rootPath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR : $this->getDefaultRootPath();
@@ -43,6 +45,7 @@ class App
         /**@var Container $container*/
         $container=Container::getInstance();
         $container->bind('app',$this);
+        $this->server_type=$server_type;
     }
     protected function getDefaultRootPath(){
         return dirname($this->path['easy'], 4) . DIRECTORY_SEPARATOR;
@@ -93,12 +96,22 @@ class App
         {
             return $this->begin_time;
         }
+        if($name==='begin_memory')
+        {
+            return $this->begin_memory;
+        }
+        if($name==='server_type')
+        {
+            return $this->server_type;
+        }
         return null;
     }
     //开始的时间
     protected $begin_time;
+    protected $begin_memory;
     public function run(){
         $this->begin_time= Runtime::microtime();
+        $this->begin_memory= Runtime::memory();
         error_reporting(E_ALL);
         try {
             $this->init();
@@ -127,5 +140,4 @@ class App
             throw $e;
         }
     }
-    
 }

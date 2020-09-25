@@ -59,6 +59,7 @@ class Log
      * @param bool $is_force
      */
     public function write(string $msg,int $level=self::ERROR,bool $is_force=false){
+        $this->onlog($msg,$level);
         $log_path=$this->getDir().date('d').'.log';
         if(($this->cfg['level']&$level)==$level || $is_force)
         {
@@ -68,14 +69,23 @@ class Log
     }
 
     /**
+     * 记录到内存，在app结束时候写入文件
+     * 如果有执行exit等结束语句会导致日志写入失败
      * @param string $msg
      * @param int $level
      * @param bool $is_force
      */
     public function record(string $msg,int $level=self::ERROR,bool $is_force=false){
+       $this->onlog($msg,$level);
         if(($this->cfg['level']&$level)==$level || $is_force)
         {
             self::$log[]=date('[Y-m-d H:i:s]')."[".self::map[$level]."]\t$msg\n";
+        }
+    }
+    protected function onlog(string $msg,int $level){
+        if($this->cfg['onlog'] && is_callable($this->cfg['onlog']))
+        {
+            call_user_func($this->cfg['onlog'],$msg,$level);
         }
     }
     private static $log=[];

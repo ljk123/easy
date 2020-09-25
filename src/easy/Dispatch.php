@@ -11,6 +11,7 @@ use easy\exception\RouteNotFoundException;
 use easy\traits\Singleton;
 use easy\utils\Str;
 use ReflectionClass;
+use ReflectionException;
 
 class Dispatch
 {
@@ -19,12 +20,10 @@ class Dispatch
     {
 
     }
-    private $url;
     private $app;
     private function __construct(App $app)
     {
         $this->app=$app;
-        $this->url=$app->request->getPath();
     }
 
     /**
@@ -36,17 +35,16 @@ class Dispatch
      *
      * 精准匹配 如果未找到类直接抛出异常 方法通过 method_exists判断
      * @throws ClassNotFoundException
-     * @throws InvalidArgumentException
      * @throws MethodNotFoundException
      * @throws RouteNotFoundException
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function run(){
-        //通过反射判断是否需要注入$request $reponse
-        $urls=explode('/',substr($this->url,1));
+        $url=$this->app->request->getPath();
+        $urls=explode('/',substr($url,1));
         if(count($urls)<2)
         {
-            throw new RouteNotFoundException('route not found',$this->url);
+            throw new RouteNotFoundException('route not found',$url);
         }
         //小写
         $action=array_pop($urls);

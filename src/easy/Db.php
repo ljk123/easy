@@ -23,7 +23,7 @@ class Db
     }
     private function __construct(App $app)
     {
-        $type=$app->config->get('server_type');
+        $type=$app->server_type;
         $class='easy\\db\\'.strtolower($type).'\\Mysql';
         if(!class_exists($class))
         {

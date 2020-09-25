@@ -22,9 +22,8 @@ class Request
     use Singleton;
     protected $driver;
 
-    private function __construct(App $app)
+    private function __construct(string $type='fpm')
     {
-        $type=$app->config->get('server_type');
         $class='easy\\request\\'.strtolower($type).'\\Request';
         if(!class_exists($class))
         {

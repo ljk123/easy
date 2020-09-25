@@ -32,7 +32,7 @@ class Redis
 
     private function __construct(App $app)
     {
-        $type=$app->config->get('server_type');
+        $type=$app->server_type;
         $class='easy\\redis\\'.strtolower($type).'\\Redis';
         if(!class_exists($class))
         {

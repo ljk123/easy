@@ -11,4 +11,8 @@ class Runtime
         list($usec, $sec) = explode(" ", microtime());
         return ((float)$usec + (float)$sec);
     }
+    public static function memory(){
+        return memory_get_usage();
+    }
+
 }

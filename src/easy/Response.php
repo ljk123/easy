@@ -22,9 +22,8 @@ class Response
     private function __clone()
     {
     }
-    private function __construct(App $app)
+    private function __construct(string $type='fpm')
     {
-        $type=$app->config->get('server_type');
         $class='easy\\response\\'.strtolower($type).'\\Response';
         if(!class_exists($class))
         {
