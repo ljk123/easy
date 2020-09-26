@@ -11,7 +11,6 @@ use easy\traits\Singleton;
  * @method void setHeader(string $key, string $value)
  * @method void status(int $http_status_code)
  * @method void redirect(string $url, int $http_code)
- * @method void send(string $data)
  * @package easy
  */
 
@@ -22,8 +21,9 @@ class Response
     private function __clone()
     {
     }
-    private function __construct(string $type='fpm')
+    private function __construct()
     {
+        $type=php_sapi_name() === 'cli' && class_exists('\Swoole\Coroutine')?'swoole':'fpm';
         $class='easy\\response\\'.strtolower($type).'\\Response';
         if(!class_exists($class))
         {
@@ -39,7 +39,14 @@ class Response
             return call_user_func_array([$this->driver,$name],$arguments);
         }
     }
-    public function json( $data,int $code=null){
+    private $is_send=false;
+    public function send(string $data){
+        if(!$this->is_send) {
+            $this->is_send=true;//只发送一次
+            call_user_func([$this->driver, 'send'], $data);
+        }
+    }
+    public function json($data,int $code=null){
         if(!is_string($data))
         {
             $data=json_encode($data,JSON_UNESCAPED_UNICODE);

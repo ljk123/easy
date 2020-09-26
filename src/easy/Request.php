@@ -22,8 +22,9 @@ class Request
     use Singleton;
     protected $driver;
 
-    private function __construct(string $type='fpm')
+    private function __construct()
     {
+        $type=php_sapi_name() === 'cli' && class_exists('\Swoole\Coroutine')?'swoole':'fpm';
         $class='easy\\request\\'.strtolower($type).'\\Request';
         if(!class_exists($class))
         {

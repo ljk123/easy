@@ -35,8 +35,7 @@ class App
         'app'=>'',
         'runtime'=>'',
     ];
-    protected $server_type;
-    public function __construct(string $rootPath='',string $server_type='fpm')
+    public function __construct(string $rootPath='')
     {
         $this->path['easy'] = dirname(__DIR__) . DIRECTORY_SEPARATOR;
         $this->path['root'] = $rootPath ? rtrim($rootPath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR : $this->getDefaultRootPath();
@@ -45,7 +44,6 @@ class App
         /**@var Container $container*/
         $container=Container::getInstance();
         $container->bind('app',$this);
-        $this->server_type=$server_type;
     }
     protected function getDefaultRootPath(){
         return dirname($this->path['easy'], 4) . DIRECTORY_SEPARATOR;
@@ -99,10 +97,6 @@ class App
         if($name==='begin_memory')
         {
             return $this->begin_memory;
-        }
-        if($name==='server_type')
-        {
-            return $this->server_type;
         }
         return null;
     }

@@ -17,6 +17,12 @@ trait Singleton
         if (!self::$instance instanceof self) {
             self::$instance = new self(...$args);
         }
+        if(php_sapi_name() === 'cli' && class_exists('\Swoole\Coroutine')){
+            //swoole环境自动释放 兼容fpm执行方式 防止内存泄漏
+            defer(function (){
+                self::free();
+            });
+        }
         return self::$instance;
     }
 

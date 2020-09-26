@@ -23,7 +23,7 @@ class Db
     }
     private function __construct(App $app)
     {
-        $type=$app->server_type;
+        $type=php_sapi_name() === 'cli' && class_exists('\Swoole\Coroutine')?'swoole':'fpm';
         $class='easy\\db\\'.strtolower($type).'\\Mysql';
         if(!class_exists($class))
         {

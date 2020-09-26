@@ -1,13 +1,11 @@
 <?php
-
-
 namespace easy\db\swoole;
-
 
 use easy\db\Interfaces;
 
 class Mysql implements Interfaces
 {
+
     public function query(string $sql, array $params = [])
     {
         // TODO: Implement query() method.

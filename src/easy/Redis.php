@@ -32,7 +32,7 @@ class Redis
 
     private function __construct(App $app)
     {
-        $type=$app->server_type;
+        $type=php_sapi_name() === 'cli' && class_exists('\Swoole\Coroutine')?'swoole':'fpm';
         $class='easy\\redis\\'.strtolower($type).'\\Redis';
         if(!class_exists($class))
         {

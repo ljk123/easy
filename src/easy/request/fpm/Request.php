@@ -10,7 +10,13 @@ use easy\utils\Str;
 class Request implements Interfaces
 {
     public function getPath(){
-        return $this->server('REQUEST_URI');
+        $request_uri=$this->server('REQUEST_URI');
+        $query_string=$this->server('QUERY_STRING');
+        if($query_string && false!==strpos($request_uri,$query_string))
+        {
+            $request_uri=substr($request_uri,0,-strlen($query_string)-1);
+        }
+        return $request_uri;
     }
     public function header(string $name=null){
         $server=$this->server();
