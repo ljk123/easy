@@ -23,7 +23,7 @@ class Db
     }
     private function __construct(App $app)
     {
-        $type=php_sapi_name() === 'cli' && class_exists('\Swoole\Coroutine')?'swoole':'fpm';
+        $type = !defined('EASY_CONSOLE') && php_sapi_name() === 'cli' && class_exists('\Swoole\Coroutine')?'swoole':'fpm';
         $class='easy\\db\\'.strtolower($type).'\\Mysql';
         if(!class_exists($class))
         {
@@ -250,7 +250,7 @@ class Db
                 }
                 $index=count($this->options['where']['params']);
                 $key_index=str_replace('.','_',$key).'_'.$index;
-                $this->options['where']['string'][]="$key=:$key_index";
+                $this->options['where']['string'][]="$key=:$key_index ";
                 $this->options['where']['params'][$key_index]=$val;
             }
         }
@@ -507,7 +507,7 @@ class Db
         }
 
         $this->options['update_field']=join(',',array_map(function ($field){
-            return "$field=:".str_replace('.','_',$field);
+            return "$field=:".str_replace('.','_',$field).' ';
         },array_keys($update_field)));
         $this->options['params']=$update_field;
         $options=$this->parseOptions();
@@ -555,7 +555,7 @@ class Db
                     $this->options['insert_fields'][]="`$field`";
                 }
                 $field_key=str_replace('.','_',$field)."_$index";
-                $cur_value[]=':'.$field_key;
+                $cur_value[]=':'.$field_key.' ';
                 $this->options['params'][$field_key]=$value;
             }
             $this->options['insert_values'][]='('.join(',',$cur_value).')';

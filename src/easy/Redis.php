@@ -3,9 +3,9 @@
 
 namespace easy;
 
-use easy\redis\Interfaces;
 use easy\exception\InvalidArgumentException;
 use easy\exception\RedisException;
+use easy\redis\Interfaces;
 use easy\traits\Singleton;
 
 /**
@@ -32,7 +32,7 @@ class Redis
 
     private function __construct(App $app)
     {
-        $type=php_sapi_name() === 'cli' && class_exists('\Swoole\Coroutine')?'swoole':'fpm';
+        $type= !defined('EASY_CONSOLE') && php_sapi_name() === 'cli' && class_exists('\Swoole\Coroutine')?'swoole':'fpm';
         $class='easy\\redis\\'.strtolower($type).'\\Redis';
         if(!class_exists($class))
         {

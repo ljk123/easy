@@ -24,7 +24,7 @@ class Request
 
     private function __construct()
     {
-        $type=php_sapi_name() === 'cli' && class_exists('\Swoole\Coroutine')?'swoole':'fpm';
+        $type = !defined('EASY_CONSOLE') && php_sapi_name() === 'cli' && class_exists('\Swoole\Coroutine')?'swoole':'fpm';
         $class='easy\\request\\'.strtolower($type).'\\Request';
         if(!class_exists($class))
         {

@@ -33,7 +33,7 @@ class Cache
         $cfg=$this->config=$app->config->load('cache','cache');
         if(strtolower($cfg['type'])=='redis')
         {
-            $this->driver=$app->redis;
+            $this->driver=new \easy\db\cache\Redis();
         }
         else{
             throw new InvalidArgumentException('cache type does not supported:'.$cfg['type']);

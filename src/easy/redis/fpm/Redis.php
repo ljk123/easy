@@ -104,8 +104,8 @@ class Redis implements Interfaces
             $this->handler->auth($this->config['password']);
         }
         if($this->config['db']) {
-        $this->handler->select($this->config['db']);
-    }
+            $this->handler->select($this->config['db']);
+        }
         try {
             if ($this->handler->ping()) {
                 $this->connected = true;
