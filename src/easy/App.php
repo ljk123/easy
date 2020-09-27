@@ -127,6 +127,14 @@ class App
         }
         $container->get('log');
     }
+
+    /**
+     * @param int $errno
+     * @param string $errstr
+     * @param string $errfile
+     * @param int $errline
+     * @throws ErrorException
+     */
     public function appError(int $errno, string $errstr, string $errfile , int $errline )
     {
         $e = new ErrorException( $errstr,$errno, $errfile, $errline);
