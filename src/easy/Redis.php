@@ -84,43 +84,7 @@ class Redis
             }
             $config=$this->config[0];
             /**@var Interfaces $link*/
-            if(!empty($config['pool']))
-            {
-                //创建连接池
-                /**@var Pool $pool */
-                $pool=Pool::getInstance($config['pool']);
-                if($pool->length()>0)
-                {}
-                elseif($pool->pushed()===0)
-                {
-                    //创建
-                    for ($i=0;$i<$config['pool']['min_size'];$i++)
-                    {
-                        $link=new redis\Redis();
-                        if(false===$link->connect($config)){
-                            throw new RedisException($link->connect_error,$config);
-                        }
-                        $pool->push($link);
-                        unset($link);
-                    }
-                }
-                elseif($pool->length()<$config['pool']['max_size'])
-                {
-                    $link=new redis\Redis();
-                    if(false===$link->connect($config)){
-                        throw new RedisException($link->connect_error,$config);
-                    }
-                    $pool->push($link);
-                    unset($link);
-                }
-                $link = $pool->get();
-            }
-            else{
-                $link=new redis\Redis();
-                if(false===$link->connect($config)){
-                    throw new RedisException($link->connect_error,$config);
-                }
-            }
+            $link=$this->newConnect($config);
             return $this->master_link=$link;
         }
         else{
@@ -136,15 +100,56 @@ class Redis
             /**@var array $config*/
             $config=mt_rand(1,count($this->config)-1);
             /**@var Interfaces $link*/
-            $link=new redis\Redis();
-            if(false===$link->connect($config)){
-                throw new RedisException($link->connect_error,$config);
-            }
+            $link=$this->newConnect($config);
             return $this->master_link=$link;
         }
     }
     public function getError(){
         return $this->error;
+    }
+
+
+    protected function newConnect($config){
+        if(!empty($config['pool']))
+        {
+            //创建连接池
+            /**@var Pool $pool */
+            $pool=Pool::getInstance($config['pool']);
+            if($pool->length()>0)
+            {}
+            elseif($pool->pushed()===0)
+            {
+                //创建
+                for ($i=0;$i<$config['pool']['min_size'];$i++)
+                {
+                    $pool->create(function ($config){
+                        $link=new redis\Redis();
+                        if(false===$link->connect($config)){
+                            throw new RedisException($link->connect_error,$config);
+                        }
+                        return $link;
+                    },$config);
+                }
+            }
+            elseif($pool->length()<$config['pool']['max_size'])
+            {
+                $pool->createOne(function ($config){
+                    $link=new redis\Redis();
+                    if(false===$link->connect($config)){
+                        throw new RedisException($link->connect_error,$config);
+                    }
+                    return $link;
+                },$config);
+            }
+            $link = $pool->get();
+        }
+        else{
+            $link=new redis\Redis();
+            if(false===$link->connect($config)){
+                throw new RedisException($link->connect_error,$config);
+            }
+        }
+        return $link;
     }
 
     /**

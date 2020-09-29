@@ -5,6 +5,7 @@ namespace easy\swoole\pool;
 
 
 use easy\Exception;
+use easy\exception\InvalidArgumentException;
 use Swoole\Coroutine\Channel;
 use Swoole\Timer;
 
@@ -14,7 +15,7 @@ class Pool
     /**@var Channel $pool */
     private $pool=null;
     private $pushed_size = 0;
-    private $timeout=2;
+    private $config;
     public static function getInstance($config)
     {
         $key=$config['name'];
@@ -25,12 +26,13 @@ class Pool
     }
     private function __construct($config)
     {
-        if(!empty($config['timeout']))
+        if(empty($config['timeout']))
         {
-            $this->timeout=$config['timeout'];
+            $config['timeout']=2;
         }
+        $this->config=$config;
         $this->pool = new Channel($config['max_size']);
-        Timer::tick(1000, function(){
+        Timer::tick(5*1000, function(){
             //定时器保持心跳
             /**@var Interfaces $link*/
             if($link=$this->pool->pop(0.01))
@@ -46,7 +48,7 @@ class Pool
             }
         });
         //释放空闲链接 10分钟一次
-        Timer::tick(0.1*60*1000, function()use($config){
+        Timer::tick(10*60*1000, function()use($config){
             if ($this->pool->length() < intval($config['max_size'] * 0.5)) {
                 // 请求连接数还比较多，暂时不回收空闲连接
                 return;
@@ -56,16 +58,18 @@ class Pool
                     break;
                 }
                 /** @var Interfaces $link */
-                $link = $this->pool->pop(0.001);
-                $nowTime = time();
-                $lastUsedTime = $link->lastUseTime();
+                if($link = $this->pool->pop(0.001))
+                {
+                    $nowTime = time();
+                    $lastUsedTime = $link->lastUseTime();
 
-                // 当前连接数大于最小的连接数，并且回收掉空闲的连接
-                if ($this->pushed_size > $config['min_size'] && ($nowTime - $lastUsedTime > $config['free_time'] )) {
-                    $link=null;
-                    $this->pushed_size--;
-                } else {
-                    $this->pool->push($link);
+                    // 当前连接数大于最小的连接数，并且回收掉空闲的连接
+                    if ($this->pushed_size > $config['min_size'] && ($nowTime - $lastUsedTime > $config['free_time'] )) {
+                        $link=null;
+                        $this->pushed_size--;
+                    } else {
+                        $this->pool->push($link);
+                    }
                 }
             }
         });
@@ -73,7 +77,34 @@ class Pool
     private function __clone()
     {
     }
-    public function push(Interfaces $link,bool $is_create=true){
+
+    /**
+     * @param $callback
+     * @param array $params
+     * @throws InvalidArgumentException
+     */
+    public function create($callback,array $params=[]){
+        if(!is_callable($callback))
+        {
+            throw new InvalidArgumentException('callback must be callable');
+        }
+        for ($i=0;$i<$this->config['min_size'];$i++)
+        {
+            $this->createOne($callback,$params);
+        }
+    }
+    public function createOne($callback,array $params=[]){
+        if(!is_callable($callback))
+        {
+            throw new InvalidArgumentException('callback must be callable');
+        }
+        if($this->pushed_size < $this->config['max_size'])
+        {
+            $link=call_user_func($callback,$params);
+            $this->push($link);
+        }
+    }
+    protected function push(Interfaces $link,bool $is_create=true){
         $this->pool->push($link);
         if($is_create)
         {
@@ -101,7 +132,7 @@ class Pool
         {
             throw new Exception("call init first");
         }
-        $link = $this->pool->pop($this->timeout);
+        $link = $this->pool->pop($this->config['timeout']);
         if (false === $link) {
             throw new Exception("Pop ".get_class($link)." timeout");
         }
