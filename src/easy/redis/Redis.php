@@ -40,7 +40,7 @@ use easy\exception\RedisException;
  * @method  smembers
  * @method  sgetmembers
  */
-class Redis implements Interfaces
+class Redis implements Interfaces,\easy\swoole\pool\Interfaces
 {
     /**@var \Redis $handler*/
     protected $handler;
@@ -66,6 +66,7 @@ class Redis implements Interfaces
             throw new RedisException('redis has no connected',$this->config);
         }
         try {
+            $this->last_use_time=time();
             return call_user_func_array([$this->handler,$name],$arguments);
         }
         catch (\RedisException $e)
@@ -117,5 +118,18 @@ class Redis implements Interfaces
             $this->connect_error=$e->getMessage();
             return false;
         }
+    }
+    public function ping()
+    {
+        return $this->handler->ping();
+    }
+    protected $last_use_time=0;
+    public function lastUseTime()
+    {
+        return $this->last_use_time;
+    }
+    public function __destruct()
+    {
+        var_dump(__METHOD__);
     }
 }

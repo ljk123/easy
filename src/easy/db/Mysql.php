@@ -22,7 +22,7 @@ use PDOStatement;
  * @property-read mixed $insert_id
  * @package easy\db
  */
-class Mysql implements Interfaces
+class Mysql implements Interfaces,\easy\swoole\pool\Interfaces
 {
     //只读属性
     protected $config=[];//配置
@@ -169,6 +169,7 @@ class Mysql implements Interfaces
             $this->error=$e->getMessage();
             return false;
         }
+        $this->last_use_time=time();
         return $stat;
     }
 
@@ -184,5 +185,24 @@ class Mysql implements Interfaces
     }
 
 
-
+    public function ping()
+    {
+        try{
+            $this->pdo->getAttribute(PDO::ATTR_SERVER_INFO);
+        } catch (PDOException $e) {
+            if(strpos($e->getMessage(), 'MySQL server has gone away')!==false){
+                return false;
+            }
+        }
+        return true;
+    }
+    protected $last_use_time=0;
+    public function lastUseTime()
+    {
+        return $this->last_use_time;
+    }
+    public function __destruct()
+    {
+        var_dump(__METHOD__);
+    }
 }

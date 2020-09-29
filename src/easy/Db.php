@@ -157,7 +157,6 @@ class Db
      * @param string $sql
      * @param array $params
      * @return array|bool
-     * @throws DbException
      * @throws Exception
      */
     public function query(string $sql,array $params=[])

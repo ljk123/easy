@@ -6,6 +6,7 @@ namespace easy\swoole\pool;
 
 use easy\Exception;
 use Swoole\Coroutine\Channel;
+use Swoole\Timer;
 
 class Pool
 {
@@ -13,6 +14,7 @@ class Pool
     /**@var Channel $pool */
     private $pool=null;
     private $pushed_size = 0;
+    private $timeout=2;
     public static function getInstance($config)
     {
         $key=$config['name'];
@@ -23,14 +25,60 @@ class Pool
     }
     private function __construct($config)
     {
+        if(!empty($config['timeout']))
+        {
+            $this->timeout=$config['timeout'];
+        }
         $this->pool = new Channel($config['max_size']);
+        Timer::tick(1000, function(){
+            //定时器保持心跳
+            /**@var Interfaces $link*/
+            if($link=$this->pool->pop(0.01))
+            {
+                if(!$link->ping())
+                {
+                    //断开了就不返还了丢了
+                    $this->pushed_size--;
+                    $link=null;
+                    return;
+                }
+                $this->pool->push($link);
+            }
+        });
+        //释放空闲链接 10分钟一次
+        Timer::tick(0.1*60*1000, function()use($config){
+            if ($this->pool->length() < intval($config['max_size'] * 0.5)) {
+                // 请求连接数还比较多，暂时不回收空闲连接
+                return;
+            }
+            while (true) {
+                if ($this->pool->length()<=$config['min_size']) {
+                    break;
+                }
+                /** @var Interfaces $link */
+                $link = $this->pool->pop(0.001);
+                $nowTime = time();
+                $lastUsedTime = $link->lastUseTime();
+
+                // 当前连接数大于最小的连接数，并且回收掉空闲的连接
+                if ($this->pushed_size > $config['min_size'] && ($nowTime - $lastUsedTime > $config['free_time'] )) {
+                    $link=null;
+                    $this->pushed_size--;
+                } else {
+                    $this->pool->push($link);
+                }
+            }
+        });
     }
     private function __clone()
     {
     }
-    public function push($link){
+    public function push(Interfaces $link,bool $is_create=true){
         $this->pool->push($link);
-        $this->pushed_size++;
+        if($is_create)
+        {
+            $this->pushed_size++;
+        }
     }
 
     /**
@@ -42,18 +90,23 @@ class Pool
     public function length(){
         return $this->pool->length();
     }
+
+    /**
+     * @return mixed
+     * @throws Exception
+     */
     public function get()
     {
         if(is_null($this->pool))
         {
             throw new Exception("call init first");
         }
-        $link = $this->pool->pop();
+        $link = $this->pool->pop($this->timeout);
         if (false === $link) {
             throw new Exception("Pop ".get_class($link)." timeout");
         }
         defer(function () use ($link) { //释放
-            $this->pool->push($link);
+            $this->pool->push($link,false);
         });
         return $link;
     }
