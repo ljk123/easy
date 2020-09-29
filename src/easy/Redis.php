@@ -3,9 +3,9 @@
 
 namespace easy;
 
-use easy\exception\InvalidArgumentException;
 use easy\exception\RedisException;
 use easy\redis\Interfaces;
+use easy\swoole\pool\Pool;
 use easy\traits\Singleton;
 
 /**
@@ -16,10 +16,6 @@ use easy\traits\Singleton;
 class Redis
 {
     use Singleton;
-    /**
-     * @var string
-     */
-    protected $driver_class;
     /**
      * @var array
      */
@@ -32,15 +28,17 @@ class Redis
 
     private function __construct(App $app)
     {
-        $type= !defined('EASY_CONSOLE') && php_sapi_name() === 'cli' && class_exists('\Swoole\Coroutine')?'swoole':'fpm';
-        $class='easy\\redis\\'.strtolower($type).'\\Redis';
-        if(!class_exists($class))
-        {
-            throw new InvalidArgumentException('redis type does not supported:'.$type);
-        }
-        $this->driver_class=$class;
         $cfg=$app->config->load('redis','redis');
-        //
+        $is_swoole = !defined('EASY_CONSOLE') && php_sapi_name() === 'cli' && class_exists('\Swoole\Coroutine');
+        if($is_swoole)
+        {
+            $config = $app->config->load('swoole','swoole');
+            $pool=$config['redis'];
+            if($pool['pool'])
+            {
+                $cfg['pool']=$pool;
+            }
+        }
         if($hosts=strpos($cfg['host'],','))
         {
             //分布式
@@ -75,6 +73,7 @@ class Redis
      * @param bool $is_master
      * @return Interfaces
      * @throws RedisException
+     * @throws Exception
      */
     protected function initConnect(bool $is_master){
         if($is_master)
@@ -85,9 +84,42 @@ class Redis
             }
             $config=$this->config[0];
             /**@var Interfaces $link*/
-            $link=new $this->driver_class;
-            if(false===$link->connect($config)){
-                throw new RedisException($link->connect_error,$config);
+            if(!empty($config['pool']))
+            {
+                //创建连接池
+                /**@var Pool $pool */
+                $pool=Pool::getInstance($config['pool']);
+                if($pool->length()>0)
+                {}
+                elseif($pool->pushed()===0)
+                {
+                    //创建
+                    for ($i=0;$i<$config['pool']['min_size'];$i++)
+                    {
+                        $link=new redis\Redis();
+                        if(false===$link->connect($config)){
+                            throw new RedisException($link->connect_error,$config);
+                        }
+                        $pool->push($link);
+                        unset($link);
+                    }
+                }
+                elseif($pool->length()<$config['pool']['max_size'])
+                {
+                    $link=new redis\Redis();
+                    if(false===$link->connect($config)){
+                        throw new RedisException($link->connect_error,$config);
+                    }
+                    $pool->push($link);
+                    unset($link);
+                }
+                $link = $pool->get();
+            }
+            else{
+                $link=new redis\Redis();
+                if(false===$link->connect($config)){
+                    throw new RedisException($link->connect_error,$config);
+                }
             }
             return $this->master_link=$link;
         }
@@ -104,7 +136,7 @@ class Redis
             /**@var array $config*/
             $config=mt_rand(1,count($this->config)-1);
             /**@var Interfaces $link*/
-            $link=new $this->driver_class;
+            $link=new redis\Redis();
             if(false===$link->connect($config)){
                 throw new RedisException($link->connect_error,$config);
             }
@@ -134,6 +166,9 @@ class Redis
         {
             $this->error=$e->getMessage();
             return false;
+        } catch (Exception $e) {
+            $this->error=$e->getMessage();
+            return null;
         }
         return true;
 
@@ -148,6 +183,9 @@ class Redis
             return $this->initConnect(false)->get($key);
         }catch (RedisException $e)
         {
+            $this->error=$e->getMessage();
+            return null;
+        } catch (Exception $e) {
             $this->error=$e->getMessage();
             return null;
         }

@@ -4,8 +4,10 @@
 namespace easy;
 
 use easy\db\Interfaces;
+use easy\db\Mysql;
 use easy\exception\DbException;
 use easy\exception\InvalidArgumentException;
+use easy\swoole\pool\Pool;
 use easy\traits\Singleton;
 
 /**
@@ -23,13 +25,18 @@ class Db
     }
     private function __construct(App $app)
     {
-        $type = !defined('EASY_CONSOLE') && php_sapi_name() === 'cli' && class_exists('\Swoole\Coroutine')?'swoole':'fpm';
-        $class='easy\\db\\'.strtolower($type).'\\Mysql';
-        if(!class_exists($class))
-        {
-            throw new InvalidArgumentException('db type does not supported:'.$type);
-        }
+
         $cfg=$app->config->load('database','database');
+        $is_swoole = !defined('EASY_CONSOLE') && php_sapi_name() === 'cli' && class_exists('\Swoole\Coroutine');
+        if($is_swoole)
+        {
+            $config = $app->config->load('swoole','swoole');
+            $mysql=$config['mysql'];
+            if($mysql['pool'])
+            {
+                $cfg['pool']=$mysql;
+            }
+        }
         //
         if($hosts=strpos($cfg['host'],','))
         {
@@ -56,7 +63,6 @@ class Db
         else{
             $this->config=[$cfg];
         }
-        $this->driver_class=$class;
     }
 
     //属性部分
@@ -66,7 +72,6 @@ class Db
     /**@var Interfaces $slave_link*/
     protected $slave_link=null;
     protected $error='';
-    protected $driver_class;
 
     /**
      * @param bool $is_master
@@ -82,9 +87,41 @@ class Db
             }
             $config=$this->config[0];
             /**@var Interfaces $link*/
-            $link=new $this->driver_class;
-            if(false===$link->connect($config)){
-                throw new DbException($link->connect_error,$config);
+            if(isset($config['pool']))
+            {
+                //创建连接池
+                /**@var Pool $pool */
+                $pool=Pool::getInstance($config['pool']);
+
+                if($pool->length()>0)
+                {}
+                elseif($pool->pushed()===0)
+                {
+                    //创建
+                    for ($i=0;$i<$config['pool']['min_size'];$i++)
+                    {
+                        $link=new Mysql();
+                        if(false===$link->connect($config)){
+                            throw new DbException($link->connect_error,$config);
+                        }
+                        $pool->push($link);
+                    }
+                }
+                elseif($pool->length()<$config['pool']['max_size'])
+                {
+                    $link=new Mysql();
+                    if(false===$link->connect($config)){
+                        throw new DbException($link->connect_error,$config);
+                    }
+                    $pool->push($link);
+                }
+                $link = $pool->get();
+            }
+            else{
+                $link=new Mysql();
+                if(false===$link->connect($config)){
+                    throw new DbException($link->connect_error,$config);
+                }
             }
             return $this->master_link=$link;
         }
@@ -101,7 +138,7 @@ class Db
             /**@var array $config*/
             $config=mt_rand(1,count($this->config)-1);
             /**@var Interfaces $link*/
-            $link=new $this->driver_class;
+            $link=new Mysql();
             if(false===$link->connect($config)){
                 throw new DbException($link->connect_error,$config);
             }

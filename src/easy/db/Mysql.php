@@ -1,9 +1,8 @@
 <?php
 
 
-namespace easy\db\fpm;
+namespace easy\db;
 
-use easy\db\Interfaces;
 use easy\exception\AttrNotFoundException;
 use PDO;
 use PDOException;

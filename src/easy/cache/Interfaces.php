@@ -1,6 +1,6 @@
 <?php
 
-namespace easy\db\cache;
+namespace easy\cache;
 
 interface Interfaces
 {

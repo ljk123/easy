@@ -17,13 +17,16 @@ class Config
     private function __clone()
     {
     }
-    private function __construct(App $app)
+    private function __construct(App $app=null)
     {
-        $this->path = $app->getAppPath().'config'.DIRECTORY_SEPARATOR;
-        $config=$this->load('config');
-        foreach ($config['config_files'] as $file=>$name)
+        if($app)
         {
-            $this->load($file,$name);
+            $this->path = $app->getAppPath().'config'.DIRECTORY_SEPARATOR;
+            $config=$this->load('config');
+            foreach ($config['config_files'] as $file=>$name)
+            {
+                $this->load($file,$name);
+            }
         }
     }
 
@@ -35,10 +38,11 @@ class Config
      */
     public function load(string $file, string $name=null)
     {
-        if (is_file($file)) {
-            $filename = $file;
-        } elseif (is_file($this->path . $file . '.php')) {
+        if (is_file($this->path . $file . '.php')) {
             $filename = $this->path . $file . '.php';
+        }
+        elseif (is_file($file)) {
+            $filename = $file;
         }
         if (isset($filename)) {
             $config=include $filename;

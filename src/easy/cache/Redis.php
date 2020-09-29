@@ -1,7 +1,7 @@
 <?php
 
 
-namespace easy\db\cache;
+namespace easy\cache;
 
 
 use easy\Container;

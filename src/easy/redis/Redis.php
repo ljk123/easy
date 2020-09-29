@@ -1,15 +1,14 @@
 <?php
 
 
-namespace easy\redis\swoole;
+namespace easy\redis;
 
 
 use easy\exception\AttrNotFoundException;
 use easy\exception\RedisException;
-use easy\redis\Interfaces;
 
 /**
- * @method  get
+ * @method string get
  * @method  set(string $key, string $value)
  * @method  setex
  * @method  setnx
@@ -43,31 +42,16 @@ use easy\redis\Interfaces;
  */
 class Redis implements Interfaces
 {
-    // todo 连接池
-    private $handler;
-    private $config;
+    /**@var \Redis $handler*/
+    protected $handler;
+    public function __construct()
+    {
+    }
+
+    protected $config=[];//配置
     protected $connected=false;
     protected $connect_error='';
     protected $connect_errno=0;
-    public function connect(array $config = [])
-    {
-        $this->config=$config;
-        $this->handler = new \Swoole\Coroutine\Redis();
-        $this->handler->connect($this->config['host'], (int) $this->config['port']);
-        if($this->config['password']) {
-            $this->handler->auth($this->config['password']);
-        }
-        if($this->config['db']) {
-            $this->handler->select($this->config['db']);
-        }
-        $this->connected=$this->handler->connected;
-        if(!$this->connected)
-        {
-            $this->connect_errno=$this->handler->errCode;
-            $this->connect_error=$this->handler->errMsg;
-            return false;
-        }
-    }
 
     /**
      * @param $name
@@ -109,5 +93,29 @@ class Redis implements Interfaces
             throw new AttrNotFoundException('attr not found',$name);
         }
         return $this->$name;
+    }
+    public function connect(array $config = [])
+    {
+        $this->config=$config;
+        $this->handler=new \Redis();
+        $this->handler->connect($this->config['host'], (int) $this->config['port'], (int) $this->config['timeout']);
+        if($this->config['password']) {
+            $this->handler->auth($this->config['password']);
+        }
+        if($this->config['db']) {
+            $this->handler->select($this->config['db']);
+        }
+        try {
+            if ($this->handler->ping()) {
+                $this->connected = true;
+            }
+            else{
+                $this->handler=null;
+            }
+        } catch (\RedisException $e) {
+            $this->connect_errno=$e->getCode();
+            $this->connect_error=$e->getMessage();
+            return false;
+        }
     }
 }
