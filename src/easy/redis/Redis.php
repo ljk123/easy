@@ -128,8 +128,4 @@ class Redis implements Interfaces,\easy\swoole\pool\Interfaces
     {
         return $this->last_use_time;
     }
-    public function __destruct()
-    {
-        var_dump(__METHOD__);
-    }
 }
