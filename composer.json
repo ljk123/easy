@@ -10,7 +10,8 @@
     "require": {
         "php": ">=7.0.0",
         "ext-pdo": "*",
-        "ext-redis": "*"
+        "ext-redis": "*",
+        "ext-json": "*"
     },
     "autoload": {
         "psr-4": {

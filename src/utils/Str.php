@@ -43,4 +43,23 @@ class Str
     public static function camel(string $string){
         return lcfirst(static::studly($string));
     }
+
+    /**
+     * 生产随机字符串
+     * @param $length
+     * @return bool|string
+     */
+    public static function getRandChar($length){
+        if(!is_int($length) || $length <= 0) {
+            return false;
+        }
+        $str = '';
+        $strPol = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz";//大小写字母以及数字
+        $max = strlen($strPol)-1;
+
+        for($i=0;$i<$length;$i++){
+            $str.=$strPol[mt_rand(0,$max)];
+        }
+        return $str;
+    }
 }
