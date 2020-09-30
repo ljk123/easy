@@ -21,19 +21,22 @@ class Handle
         if($e instanceof Exception)
         {
             $exception_handle = $this->app->config->get('exception_handle');
-            $handle=(new $exception_handle);
-            if($handle instanceof UserHandleInterface)
+            if($exception_handle && class_exists($exception_handle))
             {
-                try {
-                    if(call_user_func([$handle,'report'],$e))
-                    {
-                        return;
-                    }
-                }
-                catch (\Exception $e)
+                $handle=(new $exception_handle);
+                if($handle instanceof UserHandleInterface)
                 {
-                    //防止操作失误 覆盖$e
+                    try {
+                        if(call_user_func([$handle,'report'],$e))
+                        {
+                            return;
+                        }
+                    }
+                    catch (\Exception $e)
+                    {
+                        //防止操作失误 覆盖$e
 
+                    }
                 }
             }
         }
