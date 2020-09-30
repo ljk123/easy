@@ -4,6 +4,7 @@
 namespace easy;
 
 use easy\exception\InvalidArgumentException;
+use easy\request\Interfaces;
 use easy\traits\Singleton;
 
 /**
@@ -20,6 +21,7 @@ use easy\traits\Singleton;
 class Request
 {
     use Singleton;
+    /**@var Interfaces $driver*/
     protected $driver;
 
     private function __construct()
@@ -39,5 +41,22 @@ class Request
         {
             return call_user_func_array([$this->driver,$name],$arguments);
         }
+    }
+
+    public function isPost():bool
+    {
+        return $this->driver->server('REQUEST_METHOD')==='POST';
+    }
+    public function isGet():bool
+    {
+        return $this->driver->server('REQUEST_METHOD')==='GET';
+    }
+    public function isPut():bool
+    {
+        return $this->driver->server('REQUEST_METHOD')==='PUT';
+    }
+    public function isDelete():bool
+    {
+        return $this->driver->server('REQUEST_METHOD')==='DELETE';
     }
 }

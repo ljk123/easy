@@ -34,6 +34,7 @@ class Request implements Interfaces
         {
             return $this->request->server;
         }
+        $name=strtolower($name);
         return $this->request->server[$name]??null;
     }
     public function get(string $name=null){
