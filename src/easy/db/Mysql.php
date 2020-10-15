@@ -63,15 +63,15 @@ class Mysql implements Interfaces,\easy\swoole\pool\Interfaces
     {
         $this->config=(array)$config;
         $dns=sprintf("mysql:dbname=%s;host=%s:%d",$config['database'],$config['host'],$config['port']);
-
-        $options=array_merge([
-            PDO::ATTR_CASE              =>  PDO::CASE_LOWER,
-            PDO::ATTR_ERRMODE           =>  PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_ORACLE_NULLS      =>  PDO::NULL_NATURAL,
-            PDO::ATTR_STRINGIFY_FETCHES =>  false,
-            PDO::ATTR_TIMEOUT           =>  30,//好像没效果 以后在测试
-        ],(array)$config['options']);
-
+        //用array_merge会改键值 + 好号能呗覆盖
+        $options=(array)$config['options'] + [
+                PDO::ATTR_CASE              =>  PDO::CASE_LOWER,
+                PDO::ATTR_ERRMODE           =>  PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_ORACLE_NULLS      =>  PDO::NULL_NATURAL,
+                PDO::ATTR_STRINGIFY_FETCHES =>  false,
+                PDO::ATTR_EMULATE_PREPARES  =>  false,
+                PDO::ATTR_TIMEOUT           =>  30,
+            ];
         //两个方式设置字符集
         $options[PDO::MYSQL_ATTR_INIT_COMMAND]='SET NAMES '.$config['charset'];
         $dns  .= ';charset='.$config['charset'];

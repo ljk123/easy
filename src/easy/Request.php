@@ -10,10 +10,10 @@ use easy\traits\Singleton;
 /**
  * Class Request
  * @method string getPath
- * @method array header
- * @method array server
- * @method array get
- * @method array post
+ * @method array|string header
+ * @method array|string server
+ * @method array|string get
+ * @method array|string post
  * @method array files
  * @method string content
  * @package easy
@@ -58,5 +58,26 @@ class Request
     public function isDelete():bool
     {
         return $this->driver->server('REQUEST_METHOD')==='DELETE';
+    }
+
+    /**
+     * @param array $field
+     * @param string $method
+     * @return array
+     * @throws InvalidArgumentException
+     */
+    public function only(array $field,string $method='post'):array
+    {
+        if(!in_array($method,['post','get']))
+        {
+            throw new InvalidArgumentException('method must be "post","get"');
+        }
+        $data=$this->$method();
+        $only=[];
+        foreach ($field as $item)
+        {
+            $only[$item]=$data[$item]??null;
+        }
+        return $only;
     }
 }

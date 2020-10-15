@@ -342,6 +342,10 @@ class Db
      * @return $this
      */
     public function page(int $page,int $size=null){
+        if($page < 1)
+        {
+            $page = 1;
+        }
         if(is_null($size))
         {
             $size=20;
@@ -482,7 +486,14 @@ class Db
         {
             return [];
         }
-        return $result;
+        return array_map([$this,'_read_data'],$result);
+    }
+
+    protected function _read_data($data)
+    {
+        // 转换字段类型
+
+        return $data;
     }
 
     /**
