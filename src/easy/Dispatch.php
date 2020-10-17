@@ -5,13 +5,20 @@ namespace easy;
 
 
 use easy\exception\ClassNotFoundException;
-use easy\exception\InvalidArgumentException;
 use easy\exception\MethodNotFoundException;
+use easy\exception\ResponseException;
 use easy\exception\RouteNotFoundException;
 use easy\traits\Singleton;
 use easy\utils\Str;
 use ReflectionClass;
 use ReflectionException;
+
+/**
+ * Class Dispatch
+ * @property-read string $action
+ * @property-read string $controller
+ * @package easy
+ */
 
 class Dispatch
 {
@@ -21,6 +28,13 @@ class Dispatch
 
     }
     private $app;
+    private $controller;
+    private $action;
+    public function __get($name)
+    {
+        return $this->$name??null;
+    }
+
     private function __construct(App $app)
     {
         $this->app=$app;
@@ -47,13 +61,12 @@ class Dispatch
             throw new RouteNotFoundException('route not found',$url);
         }
         //小写
-        $action=array_pop($urls);
+        $this->action=$action=array_pop($urls);
         $controller=array_pop($urls);
         $path=empty($urls)?'':join('\\',$urls).'\\';
 
         $action = Str::camel($action);
-        $controller = Str::studly($controller);
-
+        $this->controller=$controller = Str::studly($controller);
         $namespace = '\\app\\controller\\'.$path;
 
         $class=$namespace.$controller;
@@ -64,26 +77,48 @@ class Dispatch
         {
             throw new MethodNotFoundException('action not found',$class."::".$action);
         }
-        $ref_class=new ReflectionClass($class);
-        $constructor=$ref_class->getConstructor();
-        if($constructor){
-            //如果存在构造方法
-            $argv=Container::getInstance()->getArgv($constructor);
-            $controller_instance=$ref_class->newInstanceArgs($argv);
+
+        try {
+            $ref_class=new ReflectionClass($class);
+            $constructor=$ref_class->getConstructor();
+            if($constructor){
+                //如果存在构造方法
+                $argv=Container::getInstance()->getArgv($constructor);
+                $controller_instance=$ref_class->newInstanceArgs($argv);
+            }
+            else{
+                $controller_instance=$ref_class->newInstance();
+            }
+            //前置操作
+            if(method_exists($class,'before'))
+            {
+                $method=$ref_class->getMethod('before');
+                $argv=Container::getInstance()->getArgv($method);
+                call_user_func_array([$controller_instance,'before'],$argv);
+            }
+            if(method_exists($class,$action))
+            {
+                $method=$ref_class->getMethod($action);
+                $argv=Container::getInstance()->getArgv($method);
+            }
+            else{
+                //__call
+                $argv=[];
+            }
+            $result=call_user_func_array([$controller_instance,$action],$argv);
+            //后置操作
+            if(method_exists($class,'after'))
+            {
+                $method=$ref_class->getMethod('after');
+                $argv=Container::getInstance()->getArgv($method);
+                call_user_func_array([$controller_instance,'after'],$argv);
+            }
         }
-        else{
-            $controller_instance=$ref_class->newInstance();
-        }
-        if(method_exists($class,$action))
+        catch (ResponseException $e)
         {
-            $method=$ref_class->getMethod($action);
-            $argv=Container::getInstance()->getArgv($method);
+            $result=$e->getData();
         }
-        else{
-            //__call
-            $argv=[];
-        }
-        $result=call_user_func_array([$controller_instance,$action],$argv);
+
         //控制器返回内容
         $this->app->response->json($result);
     }

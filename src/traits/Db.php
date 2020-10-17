@@ -6,6 +6,7 @@ namespace easy\traits;
 use easy\Container;
 use easy\db\Interfaces;
 use easy\db\Mysql;
+use easy\Exception;
 use easy\exception\DbException;
 use easy\exception\InvalidArgumentException;
 use easy\swoole\pool\Pool;
@@ -188,26 +189,17 @@ trait Db
     }
     //事务
 
-    /**
-     * @throws Exception
-     */
     public function startTrans()
     {
         return $this->initConnect(true)->startTrans();
     }
 
-    /**
-     * @throws Exception
-     */
     public function rollback()
     {
         return $this->initConnect(true)->rollback();
 
     }
 
-    /**
-     * @throws Exception
-     */
     public function commit()
     {
         return $this->initConnect(true)->commit();
@@ -219,7 +211,6 @@ trait Db
     /**
      * @param $table
      * @return $this
-     * @throws InvalidArgumentException
      */
     public function table($table)
     {
@@ -227,19 +218,23 @@ trait Db
             $table = explode(',', $table);
         }
         if (!is_array($table)) {
-            throw new InvalidArgumentException('table mast be string or array,' . gettype($table) . ' gieven');
+            return $this;
         }
         $this->options['table'] = $table;
         return $this;
     }
 
+    /**
+     * @param $alias
+     * @return $this
+     */
     public function alias($alias)
     {
         if (is_string($alias)) {
             $alias = explode(',', $alias);
         }
         if (!is_array($alias)) {
-            throw new InvalidArgumentException('alias mast be string or array,' . gettype($alias) . ' gieven');
+            return $this;
         }
         $this->options['alias'] = $alias;
         return $this;
@@ -447,8 +442,6 @@ trait Db
 
     /**
      * @return array|bool
-     * @throws InvalidArgumentException
-     * @throws Exception
      */
     public function find()
     {
@@ -464,12 +457,16 @@ trait Db
 
     /**
      * @return array|bool
-     * @throws InvalidArgumentException
-     * @throws Exception
      */
     public function select()
     {
-        $options = $this->parseOptions();
+        try {
+            $options = $this->parseOptions();
+        }catch (InvalidArgumentException $e)
+        {
+            $this->error=$e->getMessage();
+            return false;
+        }
         $sql = $this->buildSelectSql($options);
         if (false === $result = $this->query($sql, $options['params'])) {
             return false;
@@ -493,8 +490,6 @@ trait Db
     /**
      * @param string $field
      * @return array|bool|mixed
-     * @throws InvalidArgumentException
-     * @throws Exception
      */
     public function value(string $field)
     {
@@ -511,8 +506,6 @@ trait Db
     /**
      * @param string $field
      * @return array|bool
-     * @throws Exception
-     * @throws InvalidArgumentException
      */
     public function column(string $field)
     {
@@ -552,8 +545,6 @@ trait Db
     /**
      * @param array $update_field
      * @return bool|int
-     * @throws Exception
-     * @throws InvalidArgumentException
      */
     public function save(array $update_field)
     {
@@ -566,7 +557,13 @@ trait Db
             return "$field=:" . str_replace('.', '_', $field) . ' ';
         }, array_keys($update_field)));
         $this->options['params'] = $update_field;
-        $options = $this->parseOptions();
+        try{
+            $options = $this->parseOptions();
+        }catch (InvalidArgumentException $e)
+        {
+            $this->error=$e->getMessage();
+            return false;
+        }
         $sql = $this->buildUpdateSql($options);
         if (false === $num = $this->execute($sql, $options['params'])) {
             return false;
@@ -591,8 +588,6 @@ trait Db
     /**
      * @param array $data_lists
      * @return bool|int
-     * @throws Exception
-     * @throws InvalidArgumentException
      */
     public function addAll(array $data_lists)
     {
@@ -615,7 +610,14 @@ trait Db
         }
         $this->options['insert_fields'] = join(',', $this->options['insert_fields']);
         $this->options['insert_values'] = join(',', $this->options['insert_values']);
-        $options = $this->parseOptions();
+
+        try{
+            $options = $this->parseOptions();
+        }catch (InvalidArgumentException $e)
+        {
+            $this->error=$e->getMessage();
+            return false;
+        }
         $sql = $this->buildInsertSql($options);
         if (false === $num = $this->execute($sql, $options['params'])) {
             return false;
@@ -642,8 +644,6 @@ trait Db
 
     /**
      * @return bool|int
-     * @throws Exception
-     * @throws InvalidArgumentException
      */
     public function delete()
     {
@@ -651,7 +651,13 @@ trait Db
             //没条件返回0条
             return 0;
         }
-        $options = $this->parseOptions();
+        try{
+            $options = $this->parseOptions();
+        }catch (InvalidArgumentException $e)
+        {
+            $this->error=$e->getMessage();
+            return false;
+        }
         $sql = $this->buildDeleteSql($options);
         if (false === $num = $this->execute($sql, $options['params'])) {
             return false;
