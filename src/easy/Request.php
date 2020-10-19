@@ -59,18 +59,16 @@ class Request
     {
         return $this->driver->server('REQUEST_METHOD')==='DELETE';
     }
-
     /**
      * @param array $field
      * @param string $method
      * @return array
-     * @throws InvalidArgumentException
      */
     public function only(array $field,string $method='post'):array
     {
         if(!in_array($method,['post','get']))
         {
-            throw new InvalidArgumentException('method must be "post","get"');
+            return null;
         }
         $data=$this->$method();
         $only=[];
