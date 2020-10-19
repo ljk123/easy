@@ -1,15 +1,15 @@
-<h1><?=$e->getMessage()?></h1>
+<h1><?=get_class($e)?>::<?=$e->getMessage()?></h1>
 <span>File:<?=$e->getFile()?>:<?=$e->getLine()?></span>
 <div class="code">
     <ul>
-    <?php
-    $i_line=$script['first'];
-    foreach ($script['source'] as $source){
-        ?>
-        <li class="<?=$i_line==$e->getLine()?'error':''?> line"><pre><?=$source?></pre></li>
         <?php
-        $i_line++;
-    }?>
+        $i_line=$script['first'];
+        foreach ($script['source'] as $source){
+            ?>
+            <li class="<?=$i_line==$e->getLine()?'error':''?> line"><pre><?=$source?></pre></li>
+            <?php
+            $i_line++;
+        }?>
     </ul>
 </div>
 <div class="trace">

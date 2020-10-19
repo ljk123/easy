@@ -65,6 +65,7 @@ trait Db
     /**@var Interfaces $slave_link */
     protected $slave_link = null;
     protected $error = '';
+    private $lately_is_master=false;
 
     /**
      * @param bool $is_master
@@ -73,6 +74,7 @@ trait Db
      */
     protected function initConnect(bool $is_master)
     {
+        $this->lately_is_master=$is_master;
         if ($is_master) {
             if (!empty($this->master_link)) {
                 return $this->master_link;
@@ -159,7 +161,6 @@ trait Db
      * @param string $sql
      * @param array $params
      * @return array|bool
-     * @throws Exception
      */
     public function query(string $sql, array $params = [])
     {
@@ -176,7 +177,6 @@ trait Db
      * @param string $sql
      * @param array $params
      * @return bool|int
-     * @throws Exception
      */
     public function execute(string $sql, array $params = nulll)
     {
@@ -278,7 +278,7 @@ trait Db
         if (is_array($whereItem)) {
             foreach ($whereItem as $key => $val) {
                 if (!is_string($val) && !is_numeric($val)) {
-                    throw new InvalidArgumentException('alias mast be string or numeric,' . gettype($val) . ' gieven');
+                    throw new InvalidArgumentException('where key :'.$key.' must be string or numeric,' . gettype($val) . ' gieven');
                 }
                 $index = count($this->options['where']['params']);
                 $key_index = str_replace('.', '_', $key) . '_' . $index;
@@ -291,7 +291,7 @@ trait Db
                 $this->options['where']['params'] = array_merge($this->options['where']['params'], $params);
             }
         } else {
-            throw new InvalidArgumentException('alias mast be string or array,' . gettype($whereItem) . ' gieven');
+            throw new InvalidArgumentException('where must be string or array,' . gettype($whereItem) . ' gieven');
         }
         return $this;
 
@@ -554,7 +554,7 @@ trait Db
         }
 
         $this->options['update_field'] = join(',', array_map(function ($field) {
-            return "$field=:" . str_replace('.', '_', $field) . ' ';
+            return "`$field`=:" . str_replace('.', '_', $field) . ' ';
         }, array_keys($update_field)));
         $this->options['params'] = $update_field;
         try{
@@ -680,5 +680,8 @@ trait Db
             ],
             $sql
         );
+    }
+    public function getLastSql(){
+        return $this->initConnect($this->lately_is_master)->sql;
     }
 }

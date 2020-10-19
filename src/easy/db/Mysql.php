@@ -20,6 +20,7 @@ use PDOStatement;
  * @property-read int $errno
  * @property-read int $affected_rows
  * @property-read mixed $insert_id
+ * @property-read string $sql
  * @package easy\db
  */
 class Mysql implements Interfaces,\easy\swoole\pool\Interfaces
@@ -33,6 +34,7 @@ class Mysql implements Interfaces,\easy\swoole\pool\Interfaces
     protected $errno=0;
     protected $affected_rows=0;
     protected $insert_id=0;
+    protected $sql='';
     /**@var PDO $pdo*/
     protected $pdo=null;
 
@@ -47,6 +49,7 @@ class Mysql implements Interfaces,\easy\swoole\pool\Interfaces
             'errno',
             'affected_rows',
             'insert_id',
+            'sql'
         ]))
         {
             throw new AttrNotFoundException('attr not found',$name);
@@ -95,6 +98,7 @@ class Mysql implements Interfaces,\easy\swoole\pool\Interfaces
      */
     public function query(string $sql,array $params=[])
     {
+        $this->sql=$sql;
         if(false===$stat= $this->prepare($sql))
         {
             return false;
@@ -113,6 +117,7 @@ class Mysql implements Interfaces,\easy\swoole\pool\Interfaces
      */
     public function execute(string $sql,array $params=[])
     {
+        $this->sql=$sql;
         if(false===$stat= $this->prepare($sql))
         {
             return false;
@@ -134,10 +139,18 @@ class Mysql implements Interfaces,\easy\swoole\pool\Interfaces
      */
     public function prepare(string $sql)
     {
-        if(false===$stat= $this->pdo->prepare($sql))
+        //坑啊 没说会抛出Pdo异常啊
+        try{
+            if(false===$stat= $this->pdo->prepare($sql))
+            {
+                $this->errno=$this->pdo->errorCode();
+                $this->error=$this->pdo->errorInfo();
+                return false;
+            }
+        }catch (PDOException $e)
         {
-            $this->errno=$this->pdo->errorCode();
-            $this->error=$this->pdo->errorInfo();
+            $this->errno=$e->getCode();
+            $this->error=[$e->getMessage()];
             return false;
         }
         return $stat;
