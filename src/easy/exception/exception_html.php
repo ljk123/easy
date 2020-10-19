@@ -1,4 +1,4 @@
-<h1><?=get_class($e)?>::<?=$e->getMessage()?></h1>
+<h1> Caught an exception<?=get_class($e)?>::<?=$e->getMessage()?></h1>
 <span>File:<?=$e->getFile()?>:<?=$e->getLine()?></span>
 <div class="code">
     <ul>
