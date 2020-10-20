@@ -11,7 +11,7 @@ abstract class Model
     use \easy\traits\Db;
     protected $table;
     protected $data;
-    public function __construct(App $app)
+    public function __construct()
     {
         $table = $table??static::class;
         if ( $pos = strrpos($table,'\\') ) {//有命名空间
