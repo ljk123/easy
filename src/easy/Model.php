@@ -49,7 +49,7 @@ abstract class Model
         {
             foreach ($options['append'] as $k)
             {
-                $data[$k]=call_user_func([$this,'get'.Str::studly($k).'Attr'],'',$data);
+                $data[$k]=method_exists($this,'get'.Str::studly($k).'Attr')?call_user_func([$this,'get'.Str::studly($k).'Attr'],'',$data):null;
             }
         }
         if(isset($options['hidden']))
