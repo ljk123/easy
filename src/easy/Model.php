@@ -4,11 +4,12 @@
 namespace easy;
 
 
+use easy\traits\Chains;
 use easy\utils\Str;
 
 abstract class Model
 {
-    use \easy\traits\Db;
+    use Chains;
     protected $table;
     protected $data;
     public function __construct()
@@ -18,6 +19,7 @@ abstract class Model
             $table = substr($table,$pos+1);
         }
         $this->table=Str::snake($table);
+        $this->init();
     }
     public function hidden($field){
         if(is_string($field))
