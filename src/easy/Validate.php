@@ -87,23 +87,34 @@ class Validate
         }
         return true;
     }
+    public function rule(array $rule =[]){
+        $this->rule = $this->rule + $rule;
+        return $this;
+    }
 
     /**
-     * @param $arr
-     * @param array $rules
-     * @param array $msgs
+     * @param array $arr
+     * @param array $rules null 表示验证所有的字段 array 表示筛选/新增出字段验证
+     * @param bool $is_append
      * @return $this
      * @throws Exception
      */
-    public function validate(array $arr, array $rules = null, $msgs = [])
+    public function validate(array $arr, array $rules = null, $is_append = false)
     {
         if (is_null($rules)) {
             $rules = $this->rule;
         } elseif (is_array($rules)) {
-            $rules = $this->rule + $rules;
-
+            if($is_append)
+            {
+                $rules = $this->rule + $rules;
+            }
+            else{
+                $rules = array_map(function ($item){
+                    return $this->rule[$item];
+                },$rules);
+            }
         }
-        $this->msgs = $msgs + $this->msgs;
+        $this->rule=[];
         foreach ($rules as $k => $r) {
             if (isset($arr[$k])) {
                 $ret = $this->runRule($arr[$k], $r, isset($this->alias[$k]) ? $this->alias[$k] : $k);
