@@ -32,3 +32,6 @@
 ```
 ## 文档地址
 [传送门](https://doc.easy-php.cn/)
+
+## 搭建的后台框架
+[传送门](https://github.com/ljk123/easy-admin-demo)
