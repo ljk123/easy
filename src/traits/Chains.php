@@ -80,7 +80,7 @@ trait Chains
 
     public function join(string $table, string $alias, string $on, string $type = null)
     {
-        if (is_null($type) || !in_array($type = strtoupper($type), ['left', 'right', 'inner'])) {
+        if (is_null($type) || !in_array($type = strtoupper($type), ['LEFT', 'RIGHT', 'INNER'])) {
             $type = 'LEFT';
         }
         if (empty($this->options['join'])) {
