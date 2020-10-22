@@ -30,3 +30,5 @@
     "ext-redis": "*"
 }
 ```
+## 文档地址
+[传送门](https://doc.easy-php.cn/)
