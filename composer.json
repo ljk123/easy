@@ -1,5 +1,6 @@
 {
     "name": "easyphp/easyphp",
+    "license": "MIT",
     "type": "library",
     "authors": [
         {
