@@ -21,60 +21,60 @@ use easy\traits\Singleton;
 class Request
 {
     use Singleton;
-    /**@var Interfaces $driver*/
+    /**@var Interfaces $driver */
     protected $driver;
 
     private function __construct()
     {
-        $type = !defined('EASY_CONSOLE') && php_sapi_name() === 'cli' && class_exists('\Swoole\Coroutine')?'swoole':'fpm';
-        $class='easy\\request\\'.strtolower($type).'\\Request';
-        if(!class_exists($class))
-        {
-            throw new InvalidArgumentException('request type does not supported:'.$type);
+        $type = !defined('EASY_CONSOLE') && php_sapi_name() === 'cli' && class_exists('\Swoole\Coroutine') ? 'swoole' : 'fpm';
+        $class = 'easy\\request\\' . strtolower($type) . '\\Request';
+        if (!class_exists($class)) {
+            throw new InvalidArgumentException('request type does not supported:' . $type);
         }
-        $this->driver=new $class;
+        $this->driver = new $class;
     }
 
     public function __call($name, $arguments)
     {
-        if(method_exists($this->driver,$name))
-        {
-            return call_user_func_array([$this->driver,$name],$arguments);
+        if (method_exists($this->driver, $name)) {
+            return call_user_func_array([$this->driver, $name], $arguments);
         }
     }
 
-    public function isPost():bool
+    public function isPost(): bool
     {
-        return $this->driver->server('REQUEST_METHOD')==='POST';
+        return $this->driver->server('REQUEST_METHOD') === 'POST';
     }
-    public function isGet():bool
+
+    public function isGet(): bool
     {
-        return $this->driver->server('REQUEST_METHOD')==='GET';
+        return $this->driver->server('REQUEST_METHOD') === 'GET';
     }
-    public function isPut():bool
+
+    public function isPut(): bool
     {
-        return $this->driver->server('REQUEST_METHOD')==='PUT';
+        return $this->driver->server('REQUEST_METHOD') === 'PUT';
     }
-    public function isDelete():bool
+
+    public function isDelete(): bool
     {
-        return $this->driver->server('REQUEST_METHOD')==='DELETE';
+        return $this->driver->server('REQUEST_METHOD') === 'DELETE';
     }
+
     /**
      * @param array $field
      * @param string $method
      * @return array
      */
-    public function only(array $field,string $method='post'):array
+    public function only(array $field, string $method = 'post'): array
     {
-        if(!in_array($method,['post','get']))
-        {
+        if (!in_array($method, ['post', 'get'])) {
             return null;
         }
-        $data=$this->$method();
-        $only=[];
-        foreach ($field as $item)
-        {
-            $only[$item]=$data[$item]??null;
+        $data = $this->$method();
+        $only = [];
+        foreach ($field as $item) {
+            $only[$item] = $data[$item] ?? null;
         }
         return $only;
     }

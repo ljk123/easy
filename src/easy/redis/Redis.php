@@ -40,18 +40,19 @@ use easy\exception\RedisException;
  * @method  smembers
  * @method  sgetmembers
  */
-class Redis implements Interfaces,\easy\swoole\pool\Interfaces
+class Redis implements Interfaces, \easy\swoole\pool\Interfaces
 {
-    /**@var \Redis $handler*/
+    /**@var \Redis $handler */
     protected $handler;
+
     public function __construct()
     {
     }
 
-    protected $config=[];//配置
-    protected $connected=false;
-    protected $connect_error='';
-    protected $connect_errno=0;
+    protected $config = [];//配置
+    protected $connected = false;
+    protected $connect_error = '';
+    protected $connect_errno = 0;
 
     /**
      * @param $name
@@ -61,17 +62,14 @@ class Redis implements Interfaces,\easy\swoole\pool\Interfaces
      */
     public function __call($name, $arguments)
     {
-        if(empty($this->connected))
-        {
-            throw new RedisException('redis has no connected',$this->config);
+        if (empty($this->connected)) {
+            throw new RedisException('redis has no connected', $this->config);
         }
         try {
-            $this->last_use_time=time();
-            return call_user_func_array([$this->handler,$name],$arguments);
-        }
-        catch (\RedisException $e)
-        {
-            throw new RedisException($e->getMessage(),$this->config);
+            $this->last_use_time = time();
+            return call_user_func_array([$this->handler, $name], $arguments);
+        } catch (\RedisException $e) {
+            throw new RedisException($e->getMessage(), $this->config);
         }
     }
 
@@ -89,41 +87,43 @@ class Redis implements Interfaces,\easy\swoole\pool\Interfaces
             'connect_errno',
             'error',
             'errno',
-        ]))
-        {
-            throw new AttrNotFoundException('attr not found',$name);
+        ])) {
+            throw new AttrNotFoundException('attr not found', $name);
         }
         return $this->$name;
     }
+
     public function connect(array $config = [])
     {
-        $this->config=$config;
-        $this->handler=new \Redis();
-        $this->handler->connect($this->config['host'], (int) $this->config['port'], (int) $this->config['timeout']);
-        if($this->config['password']) {
+        $this->config = $config;
+        $this->handler = new \Redis();
+        $this->handler->connect($this->config['host'], (int)$this->config['port'], (int)$this->config['timeout']);
+        if ($this->config['password']) {
             $this->handler->auth($this->config['password']);
         }
-        if($this->config['db']) {
+        if ($this->config['db']) {
             $this->handler->select($this->config['db']);
         }
         try {
             if ($this->handler->ping()) {
                 $this->connected = true;
-            }
-            else{
-                $this->handler=null;
+            } else {
+                $this->handler = null;
             }
         } catch (\RedisException $e) {
-            $this->connect_errno=$e->getCode();
-            $this->connect_error=$e->getMessage();
+            $this->connect_errno = $e->getCode();
+            $this->connect_error = $e->getMessage();
             return false;
         }
     }
+
     public function ping()
     {
         return $this->handler->ping();
     }
-    protected $last_use_time=0;
+
+    protected $last_use_time = 0;
+
     public function lastUseTime()
     {
         return $this->last_use_time;

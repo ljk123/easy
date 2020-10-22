@@ -8,11 +8,12 @@ use easy\Container;
 
 class Redis implements Interfaces
 {
-    /**@var \easy\Redis $handle*/
+    /**@var \easy\Redis $handle */
     private $handle;
+
     public function __construct()
     {
-        $this->handle=Container::getInstance()->get('redis');
+        $this->handle = Container::getInstance()->get('redis');
     }
 
     public function get(string $key)
@@ -22,6 +23,6 @@ class Redis implements Interfaces
 
     public function set(string $key, string $value, int $expire = 0)
     {
-        return $this->handle->set($key,$value,$expire);
+        return $this->handle->set($key, $value, $expire);
     }
 }

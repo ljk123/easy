@@ -7,5 +7,5 @@ use Throwable;
 
 interface UserHandleInterface
 {
-    public function report(Throwable $e):bool ;
+    public function report(Throwable $e);
 }

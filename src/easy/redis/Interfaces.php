@@ -5,7 +5,7 @@ namespace easy\redis;
 /**
  * Interface Interfaces
  * @method get
- * @method set(string $key,string $value)
+ * @method set(string $key, string $value)
  * @method setex
  * @method setnx
  * @method delete
@@ -39,5 +39,5 @@ namespace easy\redis;
  */
 interface Interfaces
 {
-    public function connect(array $config=[]);
+    public function connect(array $config = []);
 }

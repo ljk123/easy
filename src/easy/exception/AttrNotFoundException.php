@@ -9,10 +9,10 @@ class AttrNotFoundException extends Exception
 {
     protected $attr;
 
-    public function __construct(string $message, string $attr=null , $previous = null)
+    public function __construct(string $message, string $attr = null, $previous = null)
     {
         $this->message = $message;
-        $this->attr   = $attr;
+        $this->attr = $attr;
 
         parent::__construct($message, 0, $previous);
     }

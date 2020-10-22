@@ -7,5 +7,5 @@ use easy\Exception;
 
 class InvalidArgumentException extends Exception
 {
-    
+
 }

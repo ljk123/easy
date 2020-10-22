@@ -14,9 +14,10 @@ use easy\Exception;
 class ResponseException extends Exception
 {
     private $data;
-    public function __construct($data=[])
+
+    public function __construct($data = [])
     {
-        $this->data=$data;
+        $this->data = $data;
     }
 
     /**

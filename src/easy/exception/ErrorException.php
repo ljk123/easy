@@ -13,13 +13,14 @@ class ErrorException extends Exception
      * @var integer
      */
     protected $severity;
-    public function __construct(string $message,int $severity=null, string $file=null , int $line =null)
+
+    public function __construct(string $message, int $severity = null, string $file = null, int $line = null)
     {
         $this->severity = (int)$severity;
-        $this->message  = $message;
-        $this->file     = (string)$file;
-        $this->line     = (int)$line;
-        $this->code     = 0;
+        $this->message = $message;
+        $this->file = (string)$file;
+        $this->line = (int)$line;
+        $this->code = 0;
     }
 
     /**

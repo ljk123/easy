@@ -8,7 +8,7 @@ use easy\traits\Singleton;
 class Config
 {
     use Singleton;
-    protected $config=[];
+    protected $config = [];
     /**
      * @var string
      */
@@ -17,36 +17,34 @@ class Config
     private function __clone()
     {
     }
-    private function __construct(App $app=null)
+
+    private function __construct(App $app = null)
     {
-        if($app)
-        {
-            $this->path = $app->getAppPath().'config'.DIRECTORY_SEPARATOR;
-            $config=$this->load('config');
-            foreach ($config['config_files'] as $file=>$name)
-            {
-                $this->load($file,$name);
+        if ($app) {
+            $this->path = $app->getAppPath() . 'config' . DIRECTORY_SEPARATOR;
+            $config = $this->load('config');
+            foreach ($config['config_files'] as $file => $name) {
+                $this->load($file, $name);
             }
         }
     }
 
     /**
      * 加载配置文件（
-     * @param  string $file 配置文件名
-     * @param  string $name 一级配置名
+     * @param string $file 配置文件名
+     * @param string $name 一级配置名
      * @return array
      */
-    public function load(string $file, string $name=null)
+    public function load(string $file, string $name = null)
     {
         if (is_file($this->path . $file . '.php')) {
             $filename = $this->path . $file . '.php';
-        }
-        elseif (is_file($file)) {
+        } elseif (is_file($file)) {
             $filename = $file;
         }
         if (isset($filename)) {
-            $config=include $filename;
-            return $this->set($config,$name);
+            $config = include $filename;
+            return $this->set($config, $name);
         }
 
         return $this->config;
@@ -119,9 +117,9 @@ class Config
             return $this->pull($name);
         }
 
-        $name    = explode('.', $name);
+        $name = explode('.', $name);
         $name[0] = strtolower($name[0]);
-        $config  = $this->config;
+        $config = $this->config;
 
         // 按.拆分成多维数组进行判断
         foreach ($name as $val) {

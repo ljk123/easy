@@ -7,20 +7,28 @@ use easy\response\Interfaces;
 
 class Response implements Interfaces
 {
-    protected $header=[
-        'Content-Type'=>'application/json'
+    protected $header = [
+        'Content-Type' => 'application/json'
     ];
-    protected $code=200;
-    public function setHeader(string $key,string $value){
-        $this->header[$key]=$value;
+    protected $code = 200;
+
+    public function setHeader(string $key, string $value)
+    {
+        $this->header[$key] = $value;
     }
-    public function status(int $http_status_code){
-        $this->code=$http_status_code;
+
+    public function status(int $http_status_code)
+    {
+        $this->code = $http_status_code;
     }
-    public function redirect(string $url, int $http_code){
-        header("Location:$url",true,$http_code);
+
+    public function redirect(string $url, int $http_code)
+    {
+        header("Location:$url", true, $http_code);
     }
-    public function send(string $data){
+
+    public function send(string $data)
+    {
         if (!headers_sent() && !empty($this->header)) {
             // 发送状态码
             http_response_code($this->code);

@@ -16,31 +16,32 @@ use easy\exception\InvalidArgumentException;
  */
 trait Chains
 {
-    private $inited=false;
-    protected function init(){
-        if($this->inited)
-        {
+    private $inited = false;
+
+    protected function init()
+    {
+        if ($this->inited) {
             return;
         }
-        if($this instanceof Db)
-        {
-            $this->db=$this;
-        }
-        else{
-            /**@var App $app*/
+        if ($this instanceof Db) {
+            $this->db = $this;
+        } else {
+            /**@var App $app */
             $app = Container::getInstance()->get('app');
-            $this->db=$app->db;
+            $this->db = $app->db;
         }
-        $this->inited=true;
+        $this->inited = true;
     }
+
     protected $error = '';
+
     public function getError()
     {
         return $this->error;
     }
 
 
-    /**@var Db $db*/
+    /**@var Db $db */
     protected $db;
 
     //  只提供简单的链式 复杂的自己走sql
@@ -116,7 +117,7 @@ trait Chains
         if (is_array($whereItem)) {
             foreach ($whereItem as $key => $val) {
                 if (!is_string($val) && !is_numeric($val)) {
-                    throw new InvalidArgumentException('where key :'.$key.' must be string or numeric,' . gettype($val) . ' gieven');
+                    throw new InvalidArgumentException('where key :' . $key . ' must be string or numeric,' . gettype($val) . ' gieven');
                 }
                 $index = count($this->options['where']['params']);
                 $key_index = str_replace('.', '_', $key) . '_' . $index;
@@ -176,11 +177,9 @@ trait Chains
         $this->options = [];
         //table
         if (empty($options['table'])) {
-            if(!empty($this->table))
-            {
-                $options['table']=[$this->table];
-            }
-            else{
+            if (!empty($this->table)) {
+                $options['table'] = [$this->table];
+            } else {
                 throw new InvalidArgumentException('table was miss of options');
             }
         }
@@ -296,9 +295,8 @@ trait Chains
     {
         try {
             $options = $this->parseOptions();
-        }catch (InvalidArgumentException $e)
-        {
-            $this->error=$e->getMessage();
+        } catch (InvalidArgumentException $e) {
+            $this->error = $e->getMessage();
             return false;
         }
         $sql = $this->buildSelectSql($options);
@@ -308,16 +306,16 @@ trait Chains
         if (empty($result)) {
             return [];
         }
-        if(method_exists($this,'_read_data'))
-        {
-            foreach($result as $k => $res)
-            {
-                $result[$k]=$this->_read_data($res,$options);
+        if (method_exists($this, '_read_data')) {
+            foreach ($result as $k => $res) {
+                $result[$k] = $this->_read_data($res, $options);
             }
         }
         return $result;
     }
-    protected function _read_data($data,$options){
+
+    protected function _read_data($data, $options)
+    {
         return $data;
     }
 
@@ -391,11 +389,10 @@ trait Chains
             return "`$field`=:" . str_replace('.', '_', $field) . ' ';
         }, array_keys($update_field)));
         $this->options['params'] = $update_field;
-        try{
+        try {
             $options = $this->parseOptions();
-        }catch (InvalidArgumentException $e)
-        {
-            $this->error=$e->getMessage();
+        } catch (InvalidArgumentException $e) {
+            $this->error = $e->getMessage();
             return false;
         }
         $sql = $this->buildUpdateSql($options);
@@ -445,11 +442,10 @@ trait Chains
         $this->options['insert_fields'] = join(',', $this->options['insert_fields']);
         $this->options['insert_values'] = join(',', $this->options['insert_values']);
 
-        try{
+        try {
             $options = $this->parseOptions();
-        }catch (InvalidArgumentException $e)
-        {
-            $this->error=$e->getMessage();
+        } catch (InvalidArgumentException $e) {
+            $this->error = $e->getMessage();
             return false;
         }
         $sql = $this->buildInsertSql($options);
@@ -485,11 +481,10 @@ trait Chains
             //没条件返回0条
             return 0;
         }
-        try{
+        try {
             $options = $this->parseOptions();
-        }catch (InvalidArgumentException $e)
-        {
-            $this->error=$e->getMessage();
+        } catch (InvalidArgumentException $e) {
+            $this->error = $e->getMessage();
             return false;
         }
         $sql = $this->buildDeleteSql($options);
@@ -515,7 +510,9 @@ trait Chains
             $sql
         );
     }
-    public function getLastSql(){
+
+    public function getLastSql()
+    {
         return $this->db->initConnect($this->lately_is_master)->sql;
     }
 }

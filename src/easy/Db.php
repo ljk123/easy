@@ -16,14 +16,15 @@ use easy\traits\Singleton;
  * 提供 query execute 方法 简单链式操作
  * @package easy
  */
-
 class Db
 {
-    use Singleton,Chains;
+    use Singleton, Chains;
+
     private function __clone()
     {
 
     }
+
     private function __construct()
     {
         $app = Container::getInstance()->get('app');
@@ -60,7 +61,7 @@ class Db
         } else {
             $this->config = [$cfg];
         }
-        $this->prefix=$this->config[0]['prefix'];
+        $this->prefix = $this->config[0]['prefix'];
         $this->init();
     }
 
@@ -70,7 +71,7 @@ class Db
     protected $master_link = null;
     /**@var Interfaces $slave_link */
     protected $slave_link = null;
-    private $lately_is_master=false;
+    private $lately_is_master = false;
     //对外暴露前缀
     private $prefix;
 
@@ -89,7 +90,7 @@ class Db
      */
     protected function initConnect(bool $is_master)
     {
-        $this->lately_is_master=$is_master;
+        $this->lately_is_master = $is_master;
         if ($is_master) {
             if (!empty($this->master_link)) {
                 return $this->master_link;
@@ -197,6 +198,7 @@ class Db
         }
         return $result;
     }
+
     //事务
 
     public function startTrans()

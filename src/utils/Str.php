@@ -1,4 +1,5 @@
 <?php
+
 namespace easy\utils;
 
 class Str
@@ -11,9 +12,8 @@ class Str
      */
     public static function snake(string $value, string $delimiter = null)
     {
-        if(is_null($delimiter))
-        {
-            $delimiter='_';
+        if (is_null($delimiter)) {
+            $delimiter = '_';
         }
         $key = $value;
 
@@ -31,8 +31,9 @@ class Str
      * @param string $string $string
      * @return string
      */
-    public static function studly(string $string){
-        return str_replace(' ','',ucwords(str_replace(['-', '_'], ' ', $string)));
+    public static function studly(string $string)
+    {
+        return str_replace(' ', '', ucwords(str_replace(['-', '_'], ' ', $string)));
     }
 
     /**
@@ -40,7 +41,8 @@ class Str
      * @param string $string $string
      * @return string
      */
-    public static function camel(string $string){
+    public static function camel(string $string)
+    {
         return lcfirst(static::studly($string));
     }
 
@@ -49,16 +51,17 @@ class Str
      * @param $length
      * @return bool|string
      */
-    public static function getRandChar($length){
-        if(!is_int($length) || $length <= 0) {
+    public static function getRandChar($length)
+    {
+        if (!is_int($length) || $length <= 0) {
             return false;
         }
         $str = '';
         $strPol = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz";//大小写字母以及数字
-        $max = strlen($strPol)-1;
+        $max = strlen($strPol) - 1;
 
-        for($i=0;$i<$length;$i++){
-            $str.=$strPol[mt_rand(0,$max)];
+        for ($i = 0; $i < $length; $i++) {
+            $str .= $strPol[mt_rand(0, $max)];
         }
         return $str;
     }

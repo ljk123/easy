@@ -9,10 +9,10 @@ class ClassNotFoundException extends Exception
 {
     protected $class;
 
-    public function __construct(string $message, string $class=null , $previous = null)
+    public function __construct(string $message, string $class = null, $previous = null)
     {
         $this->message = $message;
-        $this->class   = $class;
+        $this->class = $class;
 
         parent::__construct($message, 0, $previous);
     }

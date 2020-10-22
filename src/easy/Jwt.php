@@ -10,14 +10,14 @@ use easy\traits\Singleton;
 class Jwt
 {
     use Singleton;
-    private $secret='easy-php';
+    private $secret = 'easy-php';
 
 
     const ALG_AES = 'AES';
     const ALG_HMACSHA256 = 'HMACSHA256';
     const ALG_HS256 = 'HS256';
 
-    public function setSecret(string $key):Jwt
+    public function setSecret(string $key)
     {
         $this->secret = $key;
         return $this;
@@ -26,7 +26,7 @@ class Jwt
     /**
      * @return JwtObj
      */
-    public function publish():JwtObj
+    public function publish()
     {
         return new JwtObj(['secret' => $this->secret]);
     }
@@ -36,7 +36,7 @@ class Jwt
      * @return JwtObj
      * @throws Exception
      */
-    public function decode(string $raw):JwtObj
+    public function decode(string $raw)
     {
         $items = explode('.', $raw);
         // token格式
@@ -55,7 +55,7 @@ class Jwt
         if (empty($payload)) {
             throw new Exception('Token payload is empty!');
         }
-        if(empty($items[2])){
+        if (empty($items[2])) {
             throw new Exception('signature is empty');
         }
         $jwtObjConfig = array_merge(

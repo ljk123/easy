@@ -15,16 +15,18 @@ class DbException extends Exception
      * @param array $config
      * @param null $previous
      */
-    public function __construct($message,$config, $previous = null)
+    public function __construct($message, $config, $previous = null)
     {
         $this->message = $message;
         unset($config['database']);
         unset($config['username']);
         unset($config['password']);
-        $this->config=$config;
+        $this->config = $config;
         parent::__construct($message, 0, $previous);
     }
-    public function getConfig(){
+
+    public function getConfig()
+    {
         return $this->config;
     }
 }
