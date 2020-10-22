@@ -63,6 +63,9 @@ class Validate
                 continue;
             }
             $ar = explode(':', $val);
+            if (!isset($this->rules[$ar[0]])) {
+                throw new Exception('未定义的验证规则:' . $ar[0]);
+            }
             if (count($ar) > 1) {
                 $args = explode(',', $ar[1]);
             } else {
@@ -87,7 +90,9 @@ class Validate
         }
         return true;
     }
-    public function rule(array $rule =[]){
+
+    public function rule(array $rule = [])
+    {
         $this->rule = $this->rule + $rule;
         return $this;
     }
@@ -104,17 +109,15 @@ class Validate
         if (is_null($rules)) {
             $rules = $this->rule;
         } elseif (is_array($rules)) {
-            if($is_append)
-            {
+            if ($is_append) {
                 $rules = $this->rule + $rules;
-            }
-            else{
-                $rules = array_map(function ($item){
+            } else {
+                $rules = array_map(function ($item) {
                     return $this->rule[$item];
-                },$rules);
+                }, $rules);
             }
         }
-        $this->rule=[];
+        $this->rule = [];
         foreach ($rules as $k => $r) {
             if (isset($arr[$k])) {
                 $ret = $this->runRule($arr[$k], $r, isset($this->alias[$k]) ? $this->alias[$k] : $k);
