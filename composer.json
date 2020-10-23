@@ -1,24 +1,29 @@
 {
-    "name": "easyphp/easyphp",
-    "license": "MIT",
-    "type": "library",
-    "authors": [
-        {
-            "name": "ljk",
-            "email": "303147190@qq.com"
-        }
-    ],
-    "require": {
-        "php": ">=7.0.0",
-        "ext-pdo": "*",
-        "ext-redis": "*",
-        "ext-json": "*"
-    },
-    "autoload": {
-        "psr-4": {
-            "easy\\": "src/easy/",
-            "easy\\traits\\": "src/traits/",
-            "easy\\utils\\": "src/utils/"
-        }
+  "name": "easyphp/easyphp",
+  "license": "MIT",
+  "type": "library",
+  "authors": [
+    {
+      "name": "ljk",
+      "email": "303147190@qq.com"
     }
+  ],
+  "require": {
+    "php": ">=7.0.0",
+    "ext-pdo": "*",
+    "ext-redis": "*",
+    "ext-json": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "easy\\": "src/easy/",
+      "easy\\traits\\": "src/traits/",
+      "easy\\utils\\": "src/utils/"
+    }
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-master": "1.0.x-dev"
+    }
+  }
 }
