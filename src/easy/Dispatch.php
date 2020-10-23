@@ -63,11 +63,11 @@ class Dispatch
             throw new RouteNotFoundException('route not found', $url);
         }
         //小写
-        $this->action = $action = array_pop($urls);
+        $action = array_pop($urls);
         $controller = array_pop($urls);
         $path = empty($urls) ? '' : join('\\', $urls) . '\\';
 
-        $action = Str::camel($action);
+        $this->action = $action = Str::camel($action);
         $this->controller = $controller = Str::studly($controller);
         $namespace = '\\app\\controller\\' . $path;
 
