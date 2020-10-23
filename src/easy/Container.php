@@ -54,7 +54,7 @@ class Container
     public function get($key)
     {
         if (false === $key = $this->has($key)) {
-            throw new InvalidArgumentException('key not found:' . $key);
+            return null;
         }
         if (isset($this->instances[$key])) {
             return $this->instances[$key];
