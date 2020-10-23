@@ -1,5 +1,12 @@
 {
   "name": "easyphp/easyphp",
+  "description": "超级轻量级 php api框架",
+  "keywords": [
+    "php框架",
+    "swoole",
+    "轻量级",
+    "高性能"
+  ],
   "license": "MIT",
   "type": "library",
   "authors": [
