@@ -88,7 +88,7 @@ class Db
      * @return Interfaces
      * @throws Exception
      */
-    protected function initConnect(bool $is_master)
+    public function initConnect(bool $is_master)
     {
         $this->lately_is_master = $is_master;
         if ($is_master) {
