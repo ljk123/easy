@@ -97,7 +97,7 @@ class Mysql implements Interfaces, \easy\swoole\pool\Interfaces
      */
     public function query(string $sql, array $params = [])
     {
-        $this->sql = $sql;
+        $this->escape($sql, $params);
         if (false === $stat = $this->prepare($sql)) {
             return false;
         }
@@ -107,6 +107,7 @@ class Mysql implements Interfaces, \easy\swoole\pool\Interfaces
         return $stat->fetchAll(PDO::FETCH_ASSOC);
     }
 
+
     /**
      * @param string $sql
      * @param array|null $params
@@ -114,7 +115,7 @@ class Mysql implements Interfaces, \easy\swoole\pool\Interfaces
      */
     public function execute(string $sql, array $params = [])
     {
-        $this->sql = $sql;
+        $this->escape($sql, $params);
         if (false === $stat = $this->prepare($sql)) {
             return false;
         }
@@ -126,6 +127,15 @@ class Mysql implements Interfaces, \easy\swoole\pool\Interfaces
             $this->insert_id = $this->pdo->lastInsertId();
         }
         return $this->affected_rows;
+    }
+
+    protected function escape(string $sql, array $params = [])
+    {
+        $this->sql = str_replace(array_map(function ($field) {
+            return ':' . $field;
+        }, array_keys($params)), array_map(function ($value) {
+            return is_string($value) ? '\'' . $value . '\'' : $value;
+        }, $params), $sql);
     }
 
     /**
