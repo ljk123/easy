@@ -6,6 +6,11 @@ namespace easy;
 
 use easy\traits\Singleton;
 
+/**
+ * Class Log
+ * @method Log getInstance
+ * @package easy
+ */
 class Log
 {
     const DEBUG = 1;

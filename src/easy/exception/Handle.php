@@ -8,6 +8,11 @@ use easy\Exception;
 use easy\traits\Singleton;
 use Throwable;
 
+/**
+ * Class Handle
+ * @method Handle getInstance
+ * @package easy\exception
+ */
 class Handle
 {
     use Singleton;

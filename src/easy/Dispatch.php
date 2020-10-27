@@ -17,6 +17,7 @@ use ReflectionException;
  * Class Dispatch
  * @property-read string $action
  * @property-read string $controller
+ * @method Dispatch getInstance
  * @package easy
  */
 class Dispatch

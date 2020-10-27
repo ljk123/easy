@@ -11,6 +11,7 @@ use easy\traits\Singleton;
  * @method void setHeader(string $key, string $value)
  * @method void status(int $http_status_code)
  * @method void redirect(string $url, int $http_code)
+ * @method Response getInstance
  * @package easy
  */
 class Response

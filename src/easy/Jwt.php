@@ -7,6 +7,11 @@ namespace easy;
 use easy\jwt\JwtObj;
 use easy\traits\Singleton;
 
+/**
+ * Class Jwt
+ * @method Jwt getInstance
+ * @package easy
+ */
 class Jwt
 {
     use Singleton;

@@ -10,6 +10,11 @@ use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
 
+/**
+ * Class Container
+ * @method Container getInstance
+ * @package easy
+ */
 class Container
 {
     use Singleton;

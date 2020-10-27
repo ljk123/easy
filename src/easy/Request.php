@@ -16,6 +16,7 @@ use easy\traits\Singleton;
  * @method array|string post(string $name)
  * @method array files(string $name)
  * @method string content
+ * @method Request getInstance
  * @package easy
  */
 class Request
