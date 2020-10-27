@@ -137,17 +137,17 @@ trait Chains
     }
 
     /**
-     * @param int $limit
      * @param int $offset
+     * @param int $size
      * @return $this
      */
-    public function limit(int $limit, int $offset = null)
+    public function limit(int $offset, int $size = null)
     {
-        if (empty($offset)) {
-            $offset = $limit;
-            $limit = 0;
+        if (empty($size)) {
+            $size = $offset;
+            $offset = 0;
         }
-        $this->options['limit'] = compact('limit', 'offset');
+        $this->options['limit'] = compact('offset', 'size');
         return $this;
     }
 
@@ -217,7 +217,7 @@ trait Chains
         $options['having'] = empty($options['having']) ? '' : "HAVING {$options['having']}";
 
         //limit
-        $options['limit'] = empty($options['limit']) ? '' : "LIMIT {$options['limit']['limit']},{$options['limit']['offset']}";
+        $options['limit'] = empty($options['limit']) ? '' : "LIMIT {$options['limit']['offset']},{$options['limit']['size']}";
 
         return $options;
     }
