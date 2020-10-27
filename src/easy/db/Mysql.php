@@ -179,7 +179,7 @@ class Mysql implements Interfaces, \easy\swoole\pool\Interfaces
             }
         } catch (PDOException $e) {
             $this->errno = $e->getCode();
-            $this->error = $e->getMessage();
+            $this->error = [$e->getMessage()];
             return false;
         }
         $this->last_use_time = time();
