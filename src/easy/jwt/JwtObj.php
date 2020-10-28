@@ -12,8 +12,8 @@ use easy\utils\Str;
  * @package easy\jwt
  * @method JwtObj setAlg()
  * @method getAlg(string $alg)
- * @method JwtObj setExp()
- * @method getExp(int $exp)
+ * @method JwtObj setExp(int $exp)
+ * @method getExp()
  * @method JwtObj setSub(string $sub)
  * @method getSub()
  * @method JwtObj setNbf(string $nbf)
