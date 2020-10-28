@@ -19,7 +19,8 @@
     "php": ">=7.0.0",
     "ext-pdo": "*",
     "ext-redis": "*",
-    "ext-json": "*"
+    "ext-json": "*",
+    "ext-openssl": "*"
   },
   "autoload": {
     "psr-4": {
