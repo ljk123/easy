@@ -42,22 +42,22 @@ class Request
         }
     }
 
-    public function isPost(): bool
+    public function isPost()
     {
         return $this->driver->server('REQUEST_METHOD') === 'POST';
     }
 
-    public function isGet(): bool
+    public function isGet()
     {
         return $this->driver->server('REQUEST_METHOD') === 'GET';
     }
 
-    public function isPut(): bool
+    public function isPut()
     {
         return $this->driver->server('REQUEST_METHOD') === 'PUT';
     }
 
-    public function isDelete(): bool
+    public function isDelete()
     {
         return $this->driver->server('REQUEST_METHOD') === 'DELETE';
     }
@@ -67,7 +67,7 @@ class Request
      * @param string $method
      * @return array
      */
-    public function only(array $field, string $method = 'post'): array
+    public function only(array $field, string $method = 'post')
     {
         if (!in_array($method, ['post', 'get'])) {
             return null;
@@ -75,7 +75,7 @@ class Request
         $data = $this->$method();
         $only = [];
         foreach ($field as $item) {
-            $only[$item] = $data[$item] ?? null;
+            $only[$item] = $data[$item] ?? '';
         }
         return $only;
     }
