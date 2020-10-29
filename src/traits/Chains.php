@@ -397,6 +397,7 @@ trait Chains
         }
         $sql = $this->buildUpdateSql($options);
         if (false === $num = $this->db->execute($sql, $options['params'])) {
+            $this->error = $this->db->getError();
             return false;
         }
         return $num;
@@ -450,6 +451,7 @@ trait Chains
         }
         $sql = $this->buildInsertSql($options);
         if (false === $num = $this->db->execute($sql, $options['params'])) {
+            $this->error = $this->db->getError();
             return false;
         }
         return $num;
@@ -489,6 +491,7 @@ trait Chains
         }
         $sql = $this->buildDeleteSql($options);
         if (false === $num = $this->db->execute($sql, $options['params'])) {
+            $this->error = $this->db->getError();
             return false;
         }
         return $num;
