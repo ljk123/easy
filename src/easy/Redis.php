@@ -10,7 +10,7 @@ use easy\traits\Singleton;
 
 /**
  * Class Cache
- * @method Redis getInstance
+ * @method static Redis getInstance
  * @package easy
  */
 class Redis

@@ -10,7 +10,7 @@ use Throwable;
 
 /**
  * Class Handle
- * @method Handle getInstance
+ * @method static Handle getInstance
  * @package easy\exception
  */
 class Handle
