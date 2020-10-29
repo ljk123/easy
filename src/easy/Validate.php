@@ -119,7 +119,7 @@ class Validate
         }
         $this->rule = [];
         foreach ($rules as $k => $r) {
-            if (isset($arr[$k])) {
+            if (array_key_exists($k, $arr)) {
                 $ret = $this->runRule($arr[$k], $r, isset($this->alias[$k]) ? $this->alias[$k] : $k);
             } else if (strpos($r, 'required') === false) {
                 $ret = true;
