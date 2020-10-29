@@ -72,7 +72,7 @@ abstract class Model
 
         if (isset($options['append'])) {
             foreach ($options['append'] as $k) {
-                $append = explode(',', $k, 2);
+                $append = explode('.', $k, 2);
                 if ($append[0]) {
                     $data[$append[0]] = method_exists($this, 'get' . Str::studly($append[0]) . 'Attr') ? call_user_func([$this, 'get' . Str::studly($append[0]) . 'Attr'], '', $data, $append[1] ?? '') : null;
                 }
