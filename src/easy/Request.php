@@ -75,7 +75,7 @@ class Request
         $data = $this->$method();
         $only = [];
         foreach ($field as $item) {
-            $only[$item] = $data[$item] ?? '';
+            $only[$item] = $data[$item] ?? null;
         }
         return $only;
     }
