@@ -87,11 +87,38 @@ abstract class Model
         }
         if (isset($options['hidden'])) {
             foreach ($options['hidden'] as $k) {
-                unset($data[$k]);
+                if (isset($data[$k])) {
+                    unset($data[$k]);
+                }
             }
         }
         return $data;
     }
+
+    protected function _write_data($data, $options)
+    {
+        foreach ($data as $k => $v) {
+            if (method_exists($this, 'set' . Str::studly($k) . 'Attr')) {
+                $data[$k] = call_user_func([$this, 'set' . Str::studly($k) . 'Attr'], $data[$k], $data);
+            }
+        }
+        if (isset($options['append'])) {
+            foreach ($options['append'] as $k) {
+                if (method_exists($this, 'set' . Str::studly($k) . 'Attr')) {
+                    $data[$k] = call_user_func([$this, 'set' . Str::studly($k) . 'Attr'], $data[$k] ?? '', $data);
+                }
+            }
+        }
+        if (isset($options['hidden'])) {
+            foreach ($options['hidden'] as $k) {
+                if (isset($data[$k])) {
+                    unset($data[$k]);
+                }
+            }
+        }
+        return $data;
+    }
+
 
     public function validate(array $data, array $rules = null, Validate $validate = null)
     {

@@ -306,15 +306,18 @@ trait Chains
         if (empty($result)) {
             return [];
         }
-        if (method_exists($this, '_read_data')) {
-            foreach ($result as $k => $res) {
-                $result[$k] = $this->_read_data($res, $options);
-            }
+        foreach ($result as $k => $res) {
+            $result[$k] = $this->_read_data($res, $options);
         }
         return $result;
     }
 
     protected function _read_data($data, $options)
+    {
+        return $data;
+    }
+
+    protected function _write_data($data, $options)
     {
         return $data;
     }
@@ -384,13 +387,13 @@ trait Chains
             //没条件返回0条
             return 0;
         }
-
-        $this->options['update_field'] = join(',', array_map(function ($field) {
-            return "`$field`=:" . str_replace('.', '_', $field) . ' ';
-        }, array_keys($update_field)));
-        $this->options['params'] = $update_field;
         try {
             $options = $this->parseOptions();
+            $update_field = $this->_write_data($update_field, $options);
+            $options['update_field'] = join(',', array_map(function ($field) {
+                return "`$field`=:" . str_replace('.', '_', $field) . ' ';
+            }, array_keys($update_field)));
+            $options['params'] += $update_field;
         } catch (InvalidArgumentException $e) {
             $this->error = $e->getMessage();
             return false;
@@ -423,28 +426,31 @@ trait Chains
      */
     public function addAll(array $data_lists)
     {
-        $this->options['insert_fields'] = [];
-        $this->options['insert_values'] = [];
-        $index = 0;
-        $this->options['params'] = [];
-        foreach ($data_lists as $data) {
-            $cur_value = [];
-            foreach ($data as $field => $value) {
-                if (empty($index)) {
-                    $this->options['insert_fields'][] = "`$field`";
-                }
-                $field_key = str_replace('.', '_', $field) . "_$index";
-                $cur_value[] = ':' . $field_key . ' ';
-                $this->options['params'][$field_key] = $value;
-            }
-            $this->options['insert_values'][] = '(' . join(',', $cur_value) . ')';
-            $index++;
-        }
-        $this->options['insert_fields'] = join(',', $this->options['insert_fields']);
-        $this->options['insert_values'] = join(',', $this->options['insert_values']);
 
         try {
             $options = $this->parseOptions();
+
+            $options['insert_fields'] = [];
+            $options['insert_values'] = [];
+            $index = 0;
+            $options['params'] = [];
+            foreach ($data_lists as $data) {
+                $data = $this->_write_data($data, $options);
+                $cur_value = [];
+                foreach ($data as $field => $value) {
+                    if (empty($index)) {
+                        $options['insert_fields'][] = "`$field`";
+                    }
+                    $field_key = str_replace('.', '_', $field) . "_$index";
+                    $cur_value[] = ':' . $field_key . ' ';
+                    $options['params'][$field_key] = $value;
+                }
+                $options['insert_values'][] = '(' . join(',', $cur_value) . ')';
+                $index++;
+            }
+            $options['insert_fields'] = join(',', $options['insert_fields']);
+            $options['insert_values'] = join(',', $options['insert_values']);
+
         } catch (InvalidArgumentException $e) {
             $this->error = $e->getMessage();
             return false;
@@ -516,6 +522,6 @@ trait Chains
 
     public function getLastSql()
     {
-        return $this->db->initConnect($this->lately_is_master)->sql;
+        return $this->db->initConnect($this->db->lately_is_master)->sql;
     }
 }

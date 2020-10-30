@@ -73,6 +73,12 @@ class Db
     /**@var Interfaces $slave_link */
     protected $slave_link = null;
     private $lately_is_master = false;
+
+    public function __get($name)
+    {
+        return $this->$name ?? null;
+    }
+
     //对外暴露前缀
     private $prefix;
 
