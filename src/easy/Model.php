@@ -74,7 +74,14 @@ abstract class Model
             foreach ($options['append'] as $k) {
                 $append = explode('.', $k, 2);
                 if ($append[0]) {
-                    $data[$append[0]] = method_exists($this, 'get' . Str::studly($append[0]) . 'Attr') ? call_user_func([$this, 'get' . Str::studly($append[0]) . 'Attr'], '', $data, $append[1] ?? '') : null;
+                    $field = $append[0];
+                    $sub_append = $append[1] ?? '';
+                    if (false !== strpos($sub_append, '|')) {
+                        $sub_append_array = explode('.', $sub_append, 2);
+                        $sub_append_array[0] = str_replace('|', ',', $sub_append_array[0]);
+                        $sub_append = join('.', $sub_append_array);
+                    }
+                    $data[$field] = method_exists($this, 'get' . Str::studly($field) . 'Attr') ? call_user_func([$this, 'get' . Str::studly($field) . 'Attr'], '', $data, $sub_append) : null;
                 }
             }
         }
