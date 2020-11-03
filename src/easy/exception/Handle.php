@@ -46,7 +46,7 @@ class Handle
 
             $html = $this->exception_html($e, $script);
             $this->app->response->setHeader('Content-Type', 'text/html');
-            $this->app->response->status($e->getCode() ?: 500);
+            $this->app->response->status(($code = $e->getCode()) && is_int($code) ?: 500);
             $this->app->response->send($html);
 
         } else {

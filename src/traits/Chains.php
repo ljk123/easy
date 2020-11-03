@@ -407,13 +407,20 @@ trait Chains
         try {
             $options = $this->parseOptions();
             $update_field = $this->_write_data($update_field, $options);
-            $options['update_field'] = join(',', array_map(function ($field) {
-                if (is_array($field)) {
-
+            $join = [];
+            $params = [];
+            foreach ($update_field as $field => $value) {
+                if (is_array($value)) {
+                    if ($value[0] === 'exp') {
+                        $join[] = "`$field`=$value[1]";
+                    }
+                } elseif (is_string($value) || is_numeric($value)) {
+                    $join[] = "`$field`=:" . str_replace('.', '_', $field) . ' ';
+                    $params[$field] = $value;
                 }
-                return "`$field`=:" . str_replace('.', '_', $field) . ' ';
-            }, array_keys($update_field)));
-            $options['params'] += $update_field;
+            }
+            $options['update_field'] = join(',', $join);
+            $options['params'] += $params;
         } catch (InvalidArgumentException $e) {
             $this->error = $e->getMessage();
             return false;
@@ -438,6 +445,19 @@ trait Chains
             return false;
         }
         return $this->db->initConnect(true)->insert_id;
+    }
+
+    public function setInc(string $field, int $step = 1, int $delay = 0)
+    {
+        $delay;//todo
+
+        return $this->save([$field => ['exp', "`$field` + $step"]]);
+    }
+
+    public function setDec(string $field, int $step = 1, int $delay = 0)
+    {
+        $delay;//todo
+        return $this->save([$field => ['exp', "`$field` -0 $step"]]);
     }
 
     /**
