@@ -299,15 +299,32 @@ trait Chains
             $this->error = $e->getMessage();
             return false;
         }
+        if (isset($options['cache'])) {
+            if (is_null($options['cache']['expire']) && is_int($options['cache']['key'])) {
+                $key = md5(serialize($options));
+                $expire = $options['cache']['key'];
+            } else {
+                $key = $options['cache']['key'];
+                $expire = $options['cache']['expire'];
+            }
+            if ($result = Container::getInstance()->get('cache')->get($key)) {
+                return $result;
+            }
+            $cache = compact('key', 'expire');
+        }
         $sql = $this->buildSelectSql($options);
         if (false === $result = $this->db->query($sql, $options['params'])) {
             return false;
         }
         if (empty($result)) {
-            return [];
+            $result = [];
+        } else {
+            foreach ($result as $k => $res) {
+                $result[$k] = $this->_read_data($res, $options);
+            }
         }
-        foreach ($result as $k => $res) {
-            $result[$k] = $this->_read_data($res, $options);
+        if (isset($cache)) {
+            Container::getInstance()->get('cache')->set($key, $result, $expire);
         }
         return $result;
     }
@@ -391,6 +408,9 @@ trait Chains
             $options = $this->parseOptions();
             $update_field = $this->_write_data($update_field, $options);
             $options['update_field'] = join(',', array_map(function ($field) {
+                if (is_array($field)) {
+
+                }
                 return "`$field`=:" . str_replace('.', '_', $field) . ' ';
             }, array_keys($update_field)));
             $options['params'] += $update_field;
@@ -523,5 +543,11 @@ trait Chains
     public function getLastSql()
     {
         return $this->db->initConnect($this->db->lately_is_master)->sql;
+    }
+
+    public function cache($key, $expire = null)
+    {
+        $this->options['cache'] = compact('key', 'expire');
+        return $this;
     }
 }
