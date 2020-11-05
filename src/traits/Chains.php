@@ -4,6 +4,7 @@
 namespace easy\traits;
 
 use easy\App;
+use easy\Cache;
 use easy\Container;
 use easy\Db;
 use easy\Exception;
@@ -447,17 +448,45 @@ trait Chains
         return $this->db->initConnect(true)->insert_id;
     }
 
+    protected function lazyWrite($guid, $step, $lazyTime)
+    {
+        /**@var Cache $cache */
+        $cache = Container::getInstance()->get('cache');
+        if (!is_null($value = $cache->get($guid))) { // 存在缓存写入数据
+            if (time() > (int)($cache->get($guid . '_time')) + $lazyTime) {
+                // 延时更新时间到了，删除缓存数据 并实际写入数据库
+                $cache->set($guid, null);
+                $cache->set($guid . '_time', null);
+                return $value + $step;
+            } else {
+                // 追加数据到缓存
+                $cache->set($guid, $value + $step);
+                return false;
+            }
+        } else { // 没有缓存数据
+            $cache->set($guid, $step);
+            // 计时开始
+            $cache->set($guid . '_time', time());
+            return false;
+        }
+    }
+
     public function setInc(string $field, int $step = 1, int $delay = 0)
     {
-        $delay;//todo
-
+        if ($delay > 0) {// 延迟写入
+            $condition = $this->options['where'];
+            $guid = md5($this->table ?? $this->options['table'] . '_' . $field . '_' . serialize($condition));
+            $step = $this->lazyWrite($guid, $step, $delay);
+            if (empty($step)) {
+                return true; // 等待下次写入
+            }
+        }
         return $this->save([$field => ['exp', "`$field` + $step"]]);
     }
 
     public function setDec(string $field, int $step = 1, int $delay = 0)
     {
-        $delay;//todo
-        return $this->save([$field => ['exp', "`$field` -0 $step"]]);
+        return $this->setInc($field, -$step, $delay);
     }
 
     /**

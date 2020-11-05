@@ -18,11 +18,15 @@ class Redis implements Interfaces
 
     public function get(string $key)
     {
-        return $this->handle->get($key);
+        $res = $this->handle->get($key);
+        return unserialize($res) ?: null;
     }
 
-    public function set(string $key, string $value, int $expire = 0)
+    public function set(string $key, $value, int $expire = 0)
     {
-        return $this->handle->set($key, $value, $expire);
+        if (is_null($value)) {
+            return $this->handle->remove($key);
+        }
+        return $this->handle->set($key, serialize($value), $expire);
     }
 }

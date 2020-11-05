@@ -8,7 +8,7 @@ namespace easy\redis;
  * @method set(string $key, string $value)
  * @method setex
  * @method setnx
- * @method delete
+ * @method del
  * @method exists
  * @method incr
  * @method getMultiple

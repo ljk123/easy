@@ -181,4 +181,22 @@ class Redis
             return null;
         }
     }
+
+    /**
+     * @param string $key
+     * @return bool|null
+     */
+    public function remove(string $key)
+    {
+        try {
+            $this->initConnect(true)->del($key);
+        } catch (RedisException $e) {
+            $this->error = $e->getMessage();
+            return false;
+        } catch (Exception $e) {
+            $this->error = $e->getMessage();
+            return null;
+        }
+        return true;
+    }
 }

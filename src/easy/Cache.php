@@ -44,13 +44,12 @@ class Cache
         if (is_null($expire)) {
             $expire = $this->config['expire'];
         }
-        return $this->driver->set($cache_key, serialize($value), $expire);
+        return $this->driver->set($cache_key, $value, $expire);
     }
 
     public function get(string $key)
     {
         $cache_key = $this->config['prefix'] . $key;
-        $res = $this->driver->get($cache_key);
-        return $res ? unserialize($res) : null;
+        return $this->driver->get($cache_key);
     }
 }
