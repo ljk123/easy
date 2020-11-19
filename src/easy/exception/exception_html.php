@@ -15,7 +15,7 @@
     <pre><code class="language-php"><?php
             $i_line = $script['first'];
             foreach ($script['source'] as $source) {
-                echo '<text class="' . ($i_line == $e->getLine() ? 'error' : '') . ' ">' . $i_line . '.' . $source . '</text>';
+                echo '<text class="' . ($i_line == $e->getLine() ? 'error text' : 'text') . '"><line>' . $i_line . ".</line>\t" . $source . '</text>';
                 $i_line++;
             } ?></code></pre>
     <div class="trace">
@@ -58,7 +58,11 @@
     }
 
     .error {
-        background-color: rgba(58, 27, 4, 0.72);
+        background-color: #fff;
+    }
+
+    .text line span {
+        color: #101010 !important;
     }
 
     .footer {
