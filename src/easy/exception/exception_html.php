@@ -5,25 +5,19 @@
     <meta charset="UTF-8">
     <title>未捕获的异常</title>
     <meta name="robots" content="noindex,nofollow"/>
-    <link href="https://cdn.bootcdn.net/ajax/libs/prism/1.22.0/themes/prism.min.css" rel="stylesheet">
+    <link rel="stylesheet"
+          href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.4.0/styles/default.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.4.0/highlight.min.js"></script>
 </head>
 <div class="exception">
     <h1> 未捕获的异常 <?= get_class($e) ?>::<?= $e->getMessage() ?></h1>
     <span>File:<?= $e->getFile() ?>:<?= $e->getLine() ?></span>
-    <div class="code">
-        <ul>
-            <?php
+    <pre><code class="language-php"><?php
             $i_line = $script['first'];
             foreach ($script['source'] as $source) {
-                ?>
-                <li class="<?= $i_line == $e->getLine() ? 'error' : '' ?> line">
-                    <pre><span><?= $i_line ?>.</span><?= $source ?></pre>
-                </li>
-                <?php
+                echo '<text class="' . ($i_line == $e->getLine() ? 'error' : '') . ' ">' . $i_line . '.' . $source . '</text>';
                 $i_line++;
-            } ?>
-        </ul>
-    </div>
+            } ?></code></pre>
     <div class="trace">
         <ul>
             <?php
@@ -37,12 +31,7 @@
             } ?>
         </ul>
     </div>
-    <pre><code class="language-javascript line-numbers"><?php
-            $i_line = $script['first'];
-            foreach ($script['source'] as $source) {
-                echo $source;
-                $i_line++;
-            } ?></code></pre>
+
 </div>
 <div class="footer"><a href="https://www.easy-php.cn">easyPHP</a> Copyright&copy;<?= date('Y') ?>
 </div>
@@ -68,31 +57,19 @@
         border-bottom: 0 none;
     }
 
-    .code {
-        background-color: #252525;
-    }
-
-    .code li {
-        color: #e8bf6a;
-    }
-
-    .code li pre span {
-        background-color: #313335;
-        color: #414346;
-        padding-left: 10px;
-    }
-
-    .code .error pre span {
-        color: #888;
-    }
-
-    .code .error {
-        background-color: #323232;
+    .error {
+        background-color: rgba(58, 27, 4, 0.72);
     }
 
     .footer {
         text-align: center;
     }
 </style>
-<script src="https://cdn.bootcdn.net/ajax/libs/prism/1.22.0/prism.min.js"></script>
+<style>
+</style>
+<script>hljs.initHighlightingOnLoad();</script>
+<script type="text/javascript">
+
+</script>
+
 </html>
