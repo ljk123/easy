@@ -1,3 +1,12 @@
+EasyPHP
+===============
+[![初学者3](https://img.shields.io/badge/author-%E5%88%9D%E5%AD%A6%E8%80%853-743a3a)](https://packagist.org/packages/easyphp/easy)
+[![Total Starts](https://img.shields.io/github/stars/ljk123/easy.svg)](https://packagist.org/packages/easyphp/easy)
+[![Total Downloads](https://poser.pugx.org/easyphp/easy/downloads)](https://packagist.org/packages/easyphp/easy)
+[![Latest Stable Version](https://poser.pugx.org/easyphp/easy/v/stable)](https://packagist.org/packages/easyphp/easy)
+[![PHP Version](https://img.shields.io/badge/php-%3E%3D7.0-8892BF.svg)](http://www.php.net/)
+[![License](https://poser.pugx.org/easyphp/easy/license)](https://packagist.org/packages/easyphp/easy)
+
 # 介绍
 
  超级轻量级php框架，简单支持swoole环境
