@@ -9,17 +9,17 @@ use easy\utils\Runtime;
 
 /**
  * Class App
- * @property Config $config
- * @property Request $request
- * @property Response $response
- * @property Db $db
- * @property Redis $redis
- * @property Cache $cache
- * @property Handle $handle
- * @property Dispatch $dispatch
- * @property Log $log
- * @property float $begin_time
- * @property float $begin_memory
+ * @property-read  Config $config
+ * @property-read Request $request
+ * @property-read Response $response
+ * @property-read Db $db
+ * @property-read Redis $redis
+ * @property-read Cache $cache
+ * @property-read Handle $handle
+ * @property-read Dispatch $dispatch
+ * @property-read Log $log
+ * @property-read float $begin_time
+ * @property-read float $begin_memory
  * @method string getEasyPath
  * @method string getRootPath
  * @method string getAppPath
