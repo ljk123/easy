@@ -122,25 +122,31 @@ trait Chains
                 }
                 $index = count($this->options['where']['params']);
                 $key_index = str_replace('.', '_', $key) . '_' . $index;
-                if (is_array($val)) {
-                    switch ($val[0]) {
-                        case 'in':
-                            if (!empty($val[1])) {
-                                if (is_string($val[1])) {
-                                    $val[1] = explode(',', $val[1]);
-                                }
-                                $this->options['where']['string'][] = "$key in ( " . join(',', array_map(function ($k) use ($key_index) {
-                                        return ':' . $key_index . '_' . $k;
-                                    }, array_keys($val[1]))) . " )";
-                                foreach ($val[1] as $k => $item) {
-                                    $this->options['where']['params'][$key_index . '_' . $k] = $item;
-                                }
+                if (!is_array($val)) {
+                    $val = ['eq', $val];
+                }
+                switch ($val[0]) {
+                    case 'eq':
+                        $this->options['where']['string'][] = "$key=:$key_index ";
+                        $this->options['where']['params'][$key_index] = $val[1];
+                        break;
+                    case 'neq':
+                        $this->options['where']['string'][] = "$key!=:$key_index ";
+                        $this->options['where']['params'][$key_index] = $val[1];
+                        break;
+                    case 'in':
+                        if (!empty($val[1])) {
+                            if (is_string($val[1])) {
+                                $val[1] = explode(',', $val[1]);
                             }
-                            break;
-                    }
-                } else {
-                    $this->options['where']['string'][] = "$key=:$key_index ";
-                    $this->options['where']['params'][$key_index] = $val;
+                            $this->options['where']['string'][] = "$key in ( " . join(',', array_map(function ($k) use ($key_index) {
+                                    return ':' . $key_index . '_' . $k;
+                                }, array_keys($val[1]))) . " )";
+                            foreach ($val[1] as $k => $item) {
+                                $this->options['where']['params'][$key_index . '_' . $k] = $item;
+                            }
+                        }
+                        break;
                 }
             }
         } elseif (is_string($whereItem)) {
