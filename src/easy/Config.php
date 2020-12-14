@@ -7,7 +7,6 @@ use easy\traits\Singleton;
 
 /**
  * Class Config
- * @method static Config getInstance
  * @package easy
  */
 class Config

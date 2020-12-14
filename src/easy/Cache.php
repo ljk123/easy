@@ -8,7 +8,6 @@ use easy\traits\Singleton;
 
 /**
  * Class Cache
- * @method static Cache getInstance
  * @package easy
  */
 class Cache

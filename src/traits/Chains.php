@@ -117,13 +117,31 @@ trait Chains
         }
         if (is_array($whereItem)) {
             foreach ($whereItem as $key => $val) {
-                if (!is_string($val) && !is_numeric($val)) {
-                    throw new InvalidArgumentException('where key :' . $key . ' must be string or numeric,' . gettype($val) . ' gieven');
+                if (!is_string($val) && !is_numeric($val) && !is_array($val)) {
+                    throw new InvalidArgumentException('where key :' . $key . ' must be string or numeric or array,' . gettype($val) . ' gieven');
                 }
                 $index = count($this->options['where']['params']);
                 $key_index = str_replace('.', '_', $key) . '_' . $index;
-                $this->options['where']['string'][] = "$key=:$key_index ";
-                $this->options['where']['params'][$key_index] = $val;
+                if (is_array($val)) {
+                    switch ($val[0]) {
+                        case 'in':
+                            if (!empty($val[1])) {
+                                if (is_string($val[1])) {
+                                    $val[1] = explode(',', $val[1]);
+                                }
+                                $this->options['where']['string'][] = "$key in ( " . join(',', array_map(function ($k) use ($key_index) {
+                                        return ':' . $key_index . '_' . $k;
+                                    }, array_keys($val[1]))) . " )";
+                                foreach ($val[1] as $k => $item) {
+                                    $this->options['where']['params'][$key_index . '_' . $k] = $item;
+                                }
+                            }
+                            break;
+                    }
+                } else {
+                    $this->options['where']['string'][] = "$key=:$key_index ";
+                    $this->options['where']['params'][$key_index] = $val;
+                }
             }
         } elseif (is_string($whereItem)) {
             $this->options['where']['string'][] = $whereItem;

@@ -42,7 +42,7 @@ class App
         $this->path['root'] = $rootPath ? rtrim($rootPath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR : $this->getDefaultRootPath();
         $this->path['app'] = $this->path['root'] . 'app' . DIRECTORY_SEPARATOR;
         $this->path['runtime'] = $this->path['root'] . 'runtime' . DIRECTORY_SEPARATOR;
-        /**@var Container $container */
+
         $container = Container::getInstance();
         $container->bind('app', $this);
     }

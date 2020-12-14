@@ -8,7 +8,6 @@ use easy\traits\Singleton;
 
 /**
  * Class Log
- * @method static Log getInstance
  * @package easy
  */
 class Log

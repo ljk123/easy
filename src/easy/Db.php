@@ -14,7 +14,6 @@ use easy\traits\Singleton;
 /**
  * Class Db
  * 提供 query execute 方法 简单链式操作
- * @method static Db getInstance
  * @package easy
  */
 class Db
@@ -136,7 +135,6 @@ class Db
             try {
 
                 //创建连接池
-                /**@var Pool $pool */
                 $pool = Pool::getInstance($config['pool']);
 
                 if ($pool->length() > 0) {

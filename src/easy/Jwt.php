@@ -9,7 +9,6 @@ use easy\traits\Singleton;
 
 /**
  * Class Jwt
- * @method static Jwt getInstance
  * @package easy
  */
 class Jwt

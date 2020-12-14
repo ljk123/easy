@@ -12,7 +12,6 @@ use ReflectionMethod;
 
 /**
  * Class Container
- * @method static Container getInstance
  * @package easy
  */
 class Container

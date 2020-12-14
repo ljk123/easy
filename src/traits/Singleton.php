@@ -11,7 +11,7 @@ trait Singleton
 
     /**
      * @param mixed ...$args
-     * @return Singleton
+     * @return self
      */
     public static function getInstance(...$args)
     {

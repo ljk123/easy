@@ -17,6 +17,10 @@ class Pool
     private $pushed_size = 0;
     private $config;
 
+    /**
+     * @param $config
+     * @return self
+     */
     public static function getInstance($config)
     {
         $key = $config['name'];
