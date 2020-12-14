@@ -18,6 +18,7 @@ use easy\exception\InvalidArgumentException;
 trait Chains
 {
     private $inited = false;
+    protected $sql = "";
 
     protected function init()
     {
@@ -324,6 +325,15 @@ trait Chains
             $this->error = $e->getMessage();
             return false;
         }
+        $sql = $this->buildSelectSql($options);
+        if (isset($options['fetch_sql']) && $options['fetch_sql']) {
+            $params = [];
+            foreach ($options['params'] as $key => $param) {
+                $params[$this->table . '_' . $key] = $param;
+            }
+            $sql = str_replace(array_keys($options['params']), array_keys($params), $sql);
+            return ['sql' => $sql, 'params' => $params];
+        }
         if (isset($options['cache'])) {
             if (is_null($options['cache']['expire']) && is_int($options['cache']['key'])) {
                 $key = md5(serialize($options));
@@ -337,10 +347,10 @@ trait Chains
             }
             $cache = compact('key', 'expire');
         }
-        $sql = $this->buildSelectSql($options);
         if (false === $result = $this->db->query($sql, $options['params'])) {
             return false;
         }
+        $this->sql = $this->escape($sql, $options['params']);
         if (empty($result)) {
             $result = [];
         } else {
@@ -455,6 +465,7 @@ trait Chains
             $this->error = $this->db->getError();
             return false;
         }
+        $this->sql = $this->escape($sql, $options['params']);
         return $num;
     }
 
@@ -553,6 +564,7 @@ trait Chains
             $this->error = $this->db->getError();
             return false;
         }
+        $this->sql = $this->escape($sql, $options['params']);
         return $num;
     }
 
@@ -593,6 +605,7 @@ trait Chains
             $this->error = $this->db->getError();
             return false;
         }
+        $this->sql = $this->escape($sql, $options['params']);
         return $num;
     }
 
@@ -613,14 +626,29 @@ trait Chains
         );
     }
 
+    protected function escape(string $sql, array $params = [])
+    {
+        return str_replace(array_map(function ($field) {
+            return ':' . $field;
+        }, array_keys($params)), array_map(function ($value) {
+            return is_string($value) ? '\'' . $value . '\'' : $value;
+        }, $params), $sql);
+    }
+
     public function getLastSql()
     {
-        return $this->db->initConnect($this->db->lately_is_master)->sql;
+        return $this->sql;
     }
 
     public function cache($key, $expire = null)
     {
         $this->options['cache'] = compact('key', 'expire');
+        return $this;
+    }
+
+    public function fetchSql($fetch_sql = true)
+    {
+        $this->options['fetch_sql'] = $fetch_sql;
         return $this;
     }
 }

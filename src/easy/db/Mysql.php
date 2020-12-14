@@ -34,7 +34,6 @@ class Mysql implements Interfaces, \easy\swoole\pool\Interfaces
     protected $errno = 0;
     protected $affected_rows = 0;
     protected $insert_id = 0;
-    protected $sql = '';
     /**@var PDO $pdo */
     protected $pdo = null;
 
@@ -49,7 +48,6 @@ class Mysql implements Interfaces, \easy\swoole\pool\Interfaces
             'errno',
             'affected_rows',
             'insert_id',
-            'sql'
         ])) {
             throw new AttrNotFoundException('attr not found', $name);
         }
@@ -97,7 +95,6 @@ class Mysql implements Interfaces, \easy\swoole\pool\Interfaces
      */
     public function query(string $sql, array $params = [])
     {
-        $this->escape($sql, $params);
         if (false === $stat = $this->prepare($sql)) {
             return false;
         }
@@ -115,7 +112,6 @@ class Mysql implements Interfaces, \easy\swoole\pool\Interfaces
      */
     public function execute(string $sql, array $params = [])
     {
-        $this->escape($sql, $params);
         if (false === $stat = $this->prepare($sql)) {
             return false;
         }
@@ -129,14 +125,6 @@ class Mysql implements Interfaces, \easy\swoole\pool\Interfaces
         return $this->affected_rows;
     }
 
-    protected function escape(string $sql, array $params = [])
-    {
-        $this->sql = str_replace(array_map(function ($field) {
-            return ':' . $field;
-        }, array_keys($params)), array_map(function ($value) {
-            return is_string($value) ? '\'' . $value . '\'' : $value;
-        }, $params), $sql);
-    }
 
     /**
      * @param string $sql
