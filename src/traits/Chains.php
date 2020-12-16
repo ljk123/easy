@@ -135,6 +135,10 @@ trait Chains
                         $this->options['where']['string'][] = "$key!=:$key_index ";
                         $this->options['where']['params'][$key_index] = $val[1];
                         break;
+                    case 'like':
+                        $this->options['where']['string'][] = "$key like :$key_index ";
+                        $this->options['where']['params'][$key_index] = $val[1];
+                        break;
                     case 'in':
                         if (!empty($val[1])) {
                             if (is_string($val[1])) {
