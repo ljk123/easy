@@ -128,11 +128,33 @@ trait Chains
                 }
                 switch ($val[0]) {
                     case 'eq':
+                    case '=':
                         $this->options['where']['string'][] = "$key=:$key_index ";
                         $this->options['where']['params'][$key_index] = $val[1];
                         break;
                     case 'neq':
+                    case '!=':
                         $this->options['where']['string'][] = "$key!=:$key_index ";
+                        $this->options['where']['params'][$key_index] = $val[1];
+                        break;
+                    case 'gt':
+                    case '>':
+                        $this->options['where']['string'][] = "$key>:$key_index ";
+                        $this->options['where']['params'][$key_index] = $val[1];
+                        break;
+                    case 'lt':
+                    case '<':
+                        $this->options['where']['string'][] = "$key<:$key_index ";
+                        $this->options['where']['params'][$key_index] = $val[1];
+                        break;
+                    case 'egt':
+                    case '>=':
+                        $this->options['where']['string'][] = "$key>=:$key_index ";
+                        $this->options['where']['params'][$key_index] = $val[1];
+                        break;
+                    case 'elt':
+                    case '<=':
+                        $this->options['where']['string'][] = "$key<=:$key_index ";
                         $this->options['where']['params'][$key_index] = $val[1];
                         break;
                     case 'like':
