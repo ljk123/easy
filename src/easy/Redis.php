@@ -198,4 +198,17 @@ class Redis
         }
         return true;
     }
+
+    public function __call($name, $arguments)
+    {
+        try {
+            return $this->initConnect(true)->$name(...$arguments);
+        } catch (RedisException $e) {
+            $this->error = $e->getMessage();
+            return null;
+        } catch (Exception $e) {
+            $this->error = $e->getMessage();
+            return null;
+        }
+    }
 }
