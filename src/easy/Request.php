@@ -64,11 +64,11 @@ class Request
 
     /**
      * @param array $field
-     * @param string $method
      * @param string|null $default
+     * @param string $method
      * @return array
      */
-    public function only(array $field, string $method = 'post', string $default = null)
+    public function only(array $field, string $default = null, string $method = 'post')
     {
         if (!in_array($method, ['post', 'get'])) {
             return null;
