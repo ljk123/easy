@@ -16,7 +16,7 @@ class Request implements Interfaces
         $this->request = $request;
     }
 
-    public function getPath($name = null)
+    public function getPath()
     {
         $request_uri = $this->server('request_uri');
         $query_string = $this->server('query_string');
@@ -26,45 +26,45 @@ class Request implements Interfaces
         return $request_uri;
     }
 
-    public function header(string $name = null)
+    public function header(string $name = null, string $default = null)
     {
         if (is_null($name)) {
             return $this->request;
         }
-        return $this->request[$name] ?? null;
+        return $this->request[$name] ?? $default;
     }
 
-    public function server(string $name = null)
+    public function server(string $name = null, string $default = null)
     {
         if (is_null($name)) {
             return $this->request->server;
         }
         $name = strtolower($name);
-        return $this->request->server[$name] ?? null;
+        return $this->request->server[$name] ?? $default;
     }
 
-    public function get(string $name = null)
+    public function get(string $name = null, string $default = null)
     {
         if (is_null($name)) {
             return $this->request->get;
         }
-        return $this->request->get[$name] ?? null;
+        return $this->request->get[$name] ?? $default;
     }
 
-    public function post(string $name = null)
+    public function post(string $name = null, string $default = null)
     {
         if (is_null($name)) {
             return $this->request->post;
         }
-        return $this->request->post[$name] ?? null;
+        return $this->request->post[$name] ?? $default;
     }
 
-    public function files(string $name = null)
+    public function files(string $name = null, string $default = null)
     {
         if (is_null($name)) {
             return $this->request->files;
         }
-        return $this->request->files[$name] ?? null;
+        return $this->request->files[$name] ?? $default;
     }
 
     public function content()

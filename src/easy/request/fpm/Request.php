@@ -19,7 +19,7 @@ class Request implements Interfaces
         return $request_uri;
     }
 
-    public function header(string $name = null)
+    public function header(string $name = null,string $default=null)
     {
         $server = $this->server();
         $header = [];
@@ -31,41 +31,41 @@ class Request implements Interfaces
         if (is_null($name)) {
             return $header;
         }
-        return $header[$name] ?? null;
+        return $header[$name] ?? $default;
     }
 
-    public function server(string $name = null)
+    public function server(string $name = null,string $default=null)
     {
 
         if (is_null($name)) {
             return $_SERVER;
         }
-        return $_SERVER[$name] ?? null;
+        return $_SERVER[$name] ?? $default;
     }
 
-    public function get(string $name = null)
+    public function get(string $name = null,string $default=null)
     {
         if (is_null($name)) {
             return $_GET;
         }
-        return $_GET[$name] ?? null;
+        return $_GET[$name] ?? $default;
     }
 
-    public function post(string $name = null)
+    public function post(string $name = null,string $default=null)
     {
         $post = !empty($_POST) ? $_POST : json_decode($this->content(), true);
         if (is_null($name)) {
             return $post;
         }
-        return $post[$name] ?? null;
+        return $post[$name] ?? $default;
     }
 
-    public function files(string $name = null)
+    public function files(string $name = null,string $default=null)
     {
         if (is_null($name)) {
             return $_FILES;
         }
-        return $_FILES[$name] ?? null;
+        return $_FILES[$name] ?? $default;
     }
 
     public function content()

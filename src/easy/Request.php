@@ -21,6 +21,7 @@ use easy\traits\Singleton;
 class Request
 {
     use Singleton;
+
     /**@var Interfaces $driver */
     protected $driver;
 
@@ -64,9 +65,10 @@ class Request
     /**
      * @param array $field
      * @param string $method
+     * @param string|null $default
      * @return array
      */
-    public function only(array $field, string $method = 'post')
+    public function only(array $field, string $method = 'post', string $default = null)
     {
         if (!in_array($method, ['post', 'get'])) {
             return null;
@@ -74,7 +76,7 @@ class Request
         $data = $this->$method();
         $only = [];
         foreach ($field as $item) {
-            $only[$item] = $data[$item] ?? null;
+            $only[$item] = $data[$item] ?? $default;
         }
         return $only;
     }
