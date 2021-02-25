@@ -15,6 +15,7 @@ use easy\traits\Singleton;
 class Redis
 {
     use Singleton;
+
     /**
      * @var array
      */
@@ -199,10 +200,15 @@ class Redis
         return true;
     }
 
+    public function handle()
+    {
+        return $this->initConnect(true);
+    }
+
     public function __call($name, $arguments)
     {
         try {
-            return $this->initConnect(true)->$name(...$arguments);
+            return $this->handle()->$name(...$arguments);
         } catch (RedisException $e) {
             $this->error = $e->getMessage();
             return null;
