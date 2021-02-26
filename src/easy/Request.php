@@ -10,11 +10,11 @@ use easy\traits\Singleton;
 /**
  * Class Request
  * @method string getPath
- * @method array|string header(string $name = null)
- * @method array|string server(string $name = null)
- * @method array|string get(string $name = null)
- * @method array|string post(string $name = null)
- * @method array files(string $name = null)
+ * @method array|string header(string $name = null, string $default = null)
+ * @method array|string server(string $name = null, string $default = null)
+ * @method array|string get(string $name = null, string $default = null)
+ * @method array|string post(string $name = null, string $default = null)
+ * @method array files(string $name = null, string $default = null)
  * @method string content
  * @package easy
  */
